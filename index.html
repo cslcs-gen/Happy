@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Happy â a wall of good moments</title>
+<title>Happy &mdash; a wall of good moments</title>
 <meta name="description" content="A wall of small good things. Drop a moment, read it back." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -11,7 +11,7 @@
 <style>
   :root {
     --ink: #2a201a; --muted: #7a6f63; --faint: #b8ab9b;
-    --paper: #fffdf8; --line: #ead9bf; --coral: #E76F51;
+    --paper: #fffdf8; --line: #ead9bf; --coral: #E76F51; --red: #c0392b;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -42,21 +42,43 @@
   .post-btn:disabled { opacity: .4; cursor: default; }
 
   /* Filters */
-  .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 28px; }
+  .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 16px; }
   .filter-chip { border: 1px solid #d8c3a3; background: transparent; color: var(--muted); border-radius: 999px; padding: 5px 14px; font-size: 14px; font-family: 'Newsreader', serif; cursor: pointer; transition: all .2s; text-transform: lowercase; }
   .filter-chip.active { background: var(--ink); color: #fdf6ec; border-color: var(--ink); }
 
+  /* Manage toolbar */
+  .manage-bar {
+    display: none; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: #fff4e6; border: 1px solid #f0d2a8; border-radius: 14px;
+    padding: 12px 16px; margin-bottom: 18px; font-size: 14px;
+  }
+  .manage-bar.show { display: flex; }
+  .manage-bar .sel-count { color: var(--muted); flex: 1; font-style: italic; }
+  .mbar-btn { border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 6px 14px; font-size: 13px; font-family: 'Newsreader', serif; cursor: pointer; color: var(--ink); transition: all .15s; }
+  .mbar-btn:hover { border-color: var(--ink); }
+  .mbar-btn.danger { border-color: #e0a080; color: var(--red); }
+  .mbar-btn.danger:hover { background: var(--red); color: #fff; border-color: var(--red); }
+  .mbar-btn.danger:disabled { opacity: .35; cursor: default; pointer-events: none; }
+
   /* Wall */
   .wall { columns: 2 300px; column-gap: 18px; }
-  .card { break-inside: avoid; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 20px 20px 14px; margin-bottom: 18px; position: relative; box-shadow: 0 10px 30px -18px rgba(120,80,30,.45); overflow: hidden; animation: rise .5s cubic-bezier(.2,.7,.2,1) both; transition: transform .25s, box-shadow .25s; }
+  .card { break-inside: avoid; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 20px 20px 14px; margin-bottom: 18px; position: relative; box-shadow: 0 10px 30px -18px rgba(120,80,30,.45); overflow: hidden; animation: rise .5s cubic-bezier(.2,.7,.2,1) both; transition: transform .25s, box-shadow .25s, border-color .2s; }
   .card:hover { transform: translateY(-3px) rotate(-0.3deg); }
   .card:hover .card-actions { opacity: 1; }
   .card.flash { box-shadow: 0 0 0 3px var(--flash, var(--coral)); }
+  .card.selected { border-color: var(--coral); box-shadow: 0 0 0 2px var(--coral); transform: none !important; }
   @keyframes rise { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-  .card-spine { position: absolute; left: 0; top: 0; bottom: 0; width: 5px; }
-  .card-text { font-family: 'Fraunces', serif; font-size: 19px; line-height: 1.42; margin: 0 0 14px; padding-left: 6px; }
+  .card-spine { position: absolute; left: 0; top: 0; bottom: 0; width: 5px; transition: width .2s; }
+  .card.selected .card-spine { width: 8px; }
 
-  /* Edit textarea inside card */
+  /* Checkbox overlay (manage mode) */
+  .card-check { display: none; position: absolute; top: 12px; right: 12px; width: 20px; height: 20px; border: 2px solid var(--line); border-radius: 5px; background: var(--paper); cursor: pointer; transition: all .15s; }
+  .card-check.show { display: flex; align-items: center; justify-content: center; }
+  .card-check.checked { background: var(--coral); border-color: var(--coral); }
+  .card-check.checked::after { content: ''; display: block; width: 5px; height: 9px; border: 2px solid #fff; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); }
+
+  /* Card content */
+  .card-text { font-family: 'Fraunces', serif; font-size: 19px; line-height: 1.42; margin: 0 0 14px; padding-left: 6px; }
   .card-edit { display: none; width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-family: 'Fraunces', serif; font-size: 17px; line-height: 1.4; color: var(--ink); background: #fdf8f0; outline: none; resize: none; margin-bottom: 10px; }
   .card-edit-actions { display: none; gap: 8px; margin-bottom: 10px; padding-left: 6px; }
   .btn-save { background: var(--ink); color: #fdf6ec; border: none; border-radius: 999px; padding: 5px 14px; font-size: 13px; font-family: 'Newsreader', serif; cursor: pointer; }
@@ -67,17 +89,19 @@
   .card-left { display: flex; align-items: center; gap: 10px; }
   .card-mood { font-size: 12px; font-style: italic; text-transform: lowercase; }
   .card-ts { font-size: 11px; color: var(--faint); }
-
-  /* Action buttons (edit / delete) */
   .card-actions { display: flex; gap: 6px; opacity: 0; transition: opacity .2s; }
   .act-btn { background: none; border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 11px; font-family: 'Newsreader', serif; cursor: pointer; color: var(--muted); transition: all .15s; }
   .act-btn:hover { border-color: var(--coral); color: var(--coral); }
-  .act-btn.del:hover { border-color: #c0392b; color: #c0392b; }
+  .act-btn.del:hover { border-color: var(--red); color: var(--red); }
 
   /* Empty state */
   .empty { text-align: center; padding: 48px 20px; color: var(--faint); font-style: italic; font-size: 18px; line-height: 1.6; }
 
-  footer { text-align: center; margin-top: 40px; font-size: 13px; color: var(--faint); font-style: italic; }
+  /* Footer */
+  footer { display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 40px; font-size: 13px; color: var(--faint); font-style: italic; flex-wrap: wrap; }
+  .manage-toggle { background: none; border: 1px solid var(--line); border-radius: 999px; padding: 4px 13px; font-size: 12px; font-family: 'Newsreader', serif; cursor: pointer; color: var(--muted); transition: all .15s; font-style: normal; }
+  .manage-toggle:hover { border-color: var(--ink); color: var(--ink); }
+  .manage-toggle.active { background: var(--ink); color: #fdf6ec; border-color: var(--ink); }
 </style>
 </head>
 <body>
@@ -94,34 +118,45 @@
       <div class="mood-row" id="moodRow"></div>
       <div class="composer-actions">
         <span class="char-count" id="count">240</span>
-        <button class="post-btn" id="postBtn" disabled>Add to the wall â</button>
+        <button class="post-btn" id="postBtn" disabled>Add to the wall &rarr;</button>
       </div>
     </div>
   </div>
 
   <div class="filter-bar" id="filterBar"></div>
+
+  <!-- Manage toolbar (shown in manage mode) -->
+  <div class="manage-bar" id="manageBar">
+    <span class="sel-count" id="selCount">0 selected</span>
+    <button class="mbar-btn" id="selAllBtn">Select all</button>
+    <button class="mbar-btn danger" id="delSelBtn" disabled>Delete selected</button>
+    <button class="mbar-btn" id="cancelManageBtn">Done</button>
+  </div>
+
   <div class="wall" id="wall"></div>
   <footer id="footer"></footer>
 </div>
 
 <script>
 const MOODS = [
-  { key: "calm",     color: "#8AB17D" },
-  { key: "loved",    color: "#E76F51" },
-  { key: "delighted",color: "#F4A259" },
-  { key: "proud",    color: "#E9C46A" },
-  { key: "moved",    color: "#5B8E7D" },
-  { key: "lucky",    color: "#F4A259" },
+  { key: "calm",      color: "#8AB17D" },
+  { key: "loved",     color: "#E76F51" },
+  { key: "delighted", color: "#F4A259" },
+  { key: "proud",     color: "#E9C46A" },
+  { key: "moved",     color: "#5B8E7D" },
+  { key: "lucky",     color: "#F4A259" },
 ];
 
 const STORAGE_KEY = "happy.posts.v2";
-let activeMood = MOODS[0];
-let activeFilter = null;
-let flashId = null;
+let activeMood    = MOODS[0];
+let activeFilter  = null;
+let flashId       = null;
+let manageMode    = false;
+let selected      = new Set(); // ids of selected posts
 
 const $ = id => document.getElementById(id);
 
-// ââ Storage ââ
+// -- Storage --
 function load() {
   try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : []; }
   catch { return []; }
@@ -130,25 +165,23 @@ function save(posts) {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(posts)); } catch(e) { console.error(e); }
 }
 
-// ââ Timestamp formatting ââ
+// -- Timestamp --
 function fmtDate(ts) {
   const d = new Date(ts);
-  const now = new Date();
-  const sameYear = d.getFullYear() === now.getFullYear();
   const pad = n => String(n).padStart(2,'0');
   const time = pad(d.getHours()) + ':' + pad(d.getMinutes());
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const date = d.getDate() + ' ' + months[d.getMonth()] + (sameYear ? '' : ' ' + d.getFullYear());
-  // If today, show time only
   const today = new Date(); today.setHours(0,0,0,0);
-  const dDay = new Date(ts); dDay.setHours(0,0,0,0);
+  const dDay  = new Date(ts); dDay.setHours(0,0,0,0);
   if (dDay.getTime() === today.getTime()) return 'today ' + time;
   const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
   if (dDay.getTime() === yesterday.getTime()) return 'yesterday ' + time;
-  return date + ' Â· ' + time;
+  const sameYear = d.getFullYear() === new Date().getFullYear();
+  const date = d.getDate() + ' ' + months[d.getMonth()] + (sameYear ? '' : ' ' + d.getFullYear());
+  return date + ' ' + time;
 }
 
-// ââ Render moods ââ
+// -- Moods --
 function renderMoods() {
   $('moodRow').innerHTML = '';
   MOODS.forEach(m => {
@@ -162,12 +195,12 @@ function renderMoods() {
   });
 }
 
-// ââ Render filters ââ
+// -- Filters --
 function renderFilters(posts) {
   const bar = $('filterBar');
   bar.innerHTML = '';
   const usedMoods = [...new Set(posts.map(p => p.mood))];
-  if (usedMoods.length < 2) return; // no point filtering if only one mood
+  if (usedMoods.length < 2) return;
   const mk = (label, key) => {
     const b = document.createElement('button');
     b.className = 'filter-chip' + (activeFilter === key ? ' active' : '');
@@ -183,44 +216,67 @@ function renderFilters(posts) {
   usedMoods.forEach(k => bar.appendChild(mk(k, k)));
 }
 
-// ââ Main render ââ
+// -- Update manage toolbar counts --
+function updateManageBar(visibleIds) {
+  const n = selected.size;
+  $('selCount').textContent = n === 0 ? 'Tap a moment to select' : n + ' selected';
+  $('delSelBtn').disabled = n === 0;
+  // toggle select-all label
+  const allSelected = visibleIds.length > 0 && visibleIds.every(id => selected.has(id));
+  $('selAllBtn').textContent = allSelected ? 'Deselect all' : 'Select all';
+}
+
+// -- Main render --
 function render() {
-  const all = load().sort((a,b) => b.ts - a.ts);
+  const all     = load().sort((a,b) => b.ts - a.ts);
   const visible = activeFilter ? all.filter(p => p.mood === activeFilter) : all;
   renderFilters(all);
+
+  // manage bar visibility
+  $('manageBar').className = 'manage-bar' + (manageMode ? ' show' : '');
+
   const wall = $('wall');
   wall.innerHTML = '';
 
   if (all.length === 0) {
-    wall.innerHTML = '<div class="empty">Your wall is empty.<br>Add your first happy moment above â</div>';
-    $('footer').textContent = '';
+    wall.innerHTML = '<div class="empty">Your wall is empty.<br>Add your first happy moment above.</div>';
+    renderFooter(0, 0);
     return;
   }
 
+  const visibleIds = visible.map(p => p.id);
+
   visible.forEach((p, i) => {
     const card = document.createElement('article');
-    card.className = 'card' + (flashId === p.id ? ' flash' : '');
+    const isSelected = selected.has(p.id);
+    card.className = 'card'
+      + (flashId === p.id ? ' flash' : '')
+      + (isSelected ? ' selected' : '');
     card.style.animationDelay = Math.min(i * 0.04, 0.4) + 's';
     card.style.setProperty('--flash', p.color);
 
-    const spine  = document.createElement('div');
+    // Spine
+    const spine = document.createElement('div');
     spine.className = 'card-spine';
     spine.style.background = p.color;
 
+    // Checkbox (manage mode)
+    const chk = document.createElement('div');
+    chk.className = 'card-check' + (manageMode ? ' show' : '') + (isSelected ? ' checked' : '');
+    chk.onclick = () => toggleSelect(p.id, visibleIds);
+
+    // Text
     const cardText = document.createElement('p');
     cardText.className = 'card-text';
     cardText.textContent = p.text;
 
-    // Edit textarea (hidden by default)
+    // Edit textarea
     const editTA = document.createElement('textarea');
     editTA.className = 'card-edit';
-    editTA.value = p.text;
-    editTA.rows = 2;
-    editTA.maxLength = 240;
+    editTA.value = p.text; editTA.rows = 2; editTA.maxLength = 240;
 
     const editActions = document.createElement('div');
     editActions.className = 'card-edit-actions';
-
     const saveBtn = document.createElement('button');
     saveBtn.className = 'btn-save'; saveBtn.textContent = 'Save';
     const cancelBtn = document.createElement('button');
@@ -228,17 +284,16 @@ function render() {
     editActions.appendChild(saveBtn);
     editActions.appendChild(cancelBtn);
 
-    // Meta row
+    // Meta
     const meta = document.createElement('div');
     meta.className = 'card-meta';
-
     const left = document.createElement('div');
     left.className = 'card-left';
 
     const moodSpan = document.createElement('span');
     moodSpan.className = 'card-mood';
     moodSpan.style.color = p.color;
-    moodSpan.textContent = 'â ' + p.mood;
+    moodSpan.textContent = p.mood;
 
     const tsSpan = document.createElement('span');
     tsSpan.className = 'card-ts';
@@ -247,29 +302,36 @@ function render() {
     left.appendChild(moodSpan);
     left.appendChild(tsSpan);
 
-    // Edit / Delete buttons
-    const actions = document.createElement('div');
-    actions.className = 'card-actions';
+    // Edit/Delete (hidden in manage mode)
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'card-actions';
+    actionsDiv.style.display = manageMode ? 'none' : '';
 
     const editBtn = document.createElement('button');
     editBtn.className = 'act-btn'; editBtn.textContent = 'edit';
-
     const delBtn = document.createElement('button');
     delBtn.className = 'act-btn del'; delBtn.textContent = 'delete';
+    actionsDiv.appendChild(editBtn);
+    actionsDiv.appendChild(delBtn);
 
-    actions.appendChild(editBtn);
-    actions.appendChild(delBtn);
     meta.appendChild(left);
-    meta.appendChild(actions);
+    meta.appendChild(actionsDiv);
 
     card.appendChild(spine);
+    card.appendChild(chk);
     card.appendChild(cardText);
     card.appendChild(editTA);
     card.appendChild(editActions);
     card.appendChild(meta);
     wall.appendChild(card);
 
-    // ââ Edit logic ââ
+    // In manage mode, tapping card body also toggles selection
+    if (manageMode) {
+      cardText.style.cursor = 'pointer';
+      cardText.onclick = () => toggleSelect(p.id, visibleIds);
+    }
+
+    // Edit logic
     editBtn.onclick = () => {
       const editing = editTA.style.display === 'block';
       if (editing) { exitEdit(); return; }
@@ -298,19 +360,79 @@ function render() {
       render();
     };
 
-    // ââ Delete logic ââ
+    // Single delete (normal mode)
     delBtn.onclick = () => {
       if (!confirm('Delete this moment?')) return;
-      const posts = load().filter(x => x.id !== p.id);
-      save(posts);
+      save(load().filter(x => x.id !== p.id));
       render();
     };
   });
 
-  $('footer').textContent = all.length + ' moment' + (all.length !== 1 ? 's' : '') + ' Â· ' + visible.length + ' showing Â· saved on this device';
+  updateManageBar(visibleIds);
+  renderFooter(all.length, visible.length);
 }
 
-// ââ Submit ââ
+function toggleSelect(id, visibleIds) {
+  if (selected.has(id)) selected.delete(id); else selected.add(id);
+  updateManageBar(visibleIds);
+  // update just this card's visual without full re-render
+  document.querySelectorAll('.card').forEach(card => {
+    const chk = card.querySelector('.card-check');
+    if (!chk) return;
+    // match by position &mdash; find card index via visibleIds
+  });
+  render(); // simpler to just re-render; wall is small
+}
+
+function renderFooter(total, showing) {
+  const footer = $('footer');
+  footer.innerHTML = '';
+  if (total === 0) return;
+
+  const info = document.createElement('span');
+  info.textContent = total + ' moment' + (total !== 1 ? 's' : '') + (showing !== total ? ' . ' + showing + ' showing' : '') + ' . saved on this device';
+  footer.appendChild(info);
+
+  if (total > 0) {
+    const btn = document.createElement('button');
+    btn.className = 'manage-toggle' + (manageMode ? ' active' : '');
+    btn.textContent = manageMode ? 'Exit manage' : 'Manage';
+    btn.onclick = () => {
+      manageMode = !manageMode;
+      if (!manageMode) selected.clear();
+      render();
+    };
+    footer.appendChild(btn);
+  }
+}
+
+// -- Manage bar buttons --
+$('selAllBtn').onclick = () => {
+  const all     = load().sort((a,b) => b.ts - a.ts);
+  const visible = activeFilter ? all.filter(p => p.mood === activeFilter) : all;
+  const visibleIds = visible.map(p => p.id);
+  const allSelected = visibleIds.every(id => selected.has(id));
+  if (allSelected) { visibleIds.forEach(id => selected.delete(id)); }
+  else { visibleIds.forEach(id => selected.add(id)); }
+  render();
+};
+
+$('delSelBtn').onclick = () => {
+  const n = selected.size;
+  if (!confirm('Delete ' + n + ' selected moment' + (n !== 1 ? 's' : '') + '? This cannot be undone.')) return;
+  save(load().filter(p => !selected.has(p.id)));
+  selected.clear();
+  manageMode = false;
+  render();
+};
+
+$('cancelManageBtn').onclick = () => {
+  manageMode = false;
+  selected.clear();
+  render();
+};
+
+// -- Submit --
 function submit() {
   const ta = $('text');
   const t = ta.value.trim();
@@ -319,6 +441,8 @@ function submit() {
   save([post, ...load()]);
   ta.value = '';
   flashId = post.id;
+  manageMode = false;
+  selected.clear();
   updateCount();
   render();
   setTimeout(() => { flashId = null; render(); }, 1400);
