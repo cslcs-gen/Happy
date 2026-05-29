@@ -3,19 +3,15 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Small Good Things â a wall of happy moments</title>
-<meta name="description" content="A wall of small good things. Share a happy moment, read someone else's." />
+<title>Happy â a wall of good moments</title>
+<meta name="description" content="A wall of small good things. Drop a moment, read it back." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Newsreader:ital@0;1&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --ink: #2a201a;
-    --muted: #7a6f63;
-    --faint: #b8ab9b;
-    --paper: #fffdf8;
-    --line: #ead9bf;
-    --coral: #E76F51;
+    --ink: #2a201a; --muted: #7a6f63; --faint: #b8ab9b;
+    --paper: #fffdf8; --line: #ead9bf; --coral: #E76F51;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -23,17 +19,17 @@
     background: radial-gradient(120% 80% at 50% -10%, #fdf6ec 0%, #f6ead8 55%, #f0e0c8 100%);
     background-attachment: fixed;
     font-family: 'Newsreader', Georgia, serif;
-    color: var(--ink);
-    min-height: 100vh;
+    color: var(--ink); min-height: 100vh;
   }
   .wrap { max-width: 760px; margin: 0 auto; padding: 48px 20px 80px; }
 
   header { text-align: center; margin-bottom: 40px; }
   .kicker { font-style: italic; letter-spacing: .12em; text-transform: uppercase; font-size: 12px; color: #b07a45; margin-bottom: 14px; }
-  h1 { font-family: 'Fraunces', serif; font-weight: 600; font-size: clamp(34px, 7vw, 56px); line-height: 1.04; margin: 0 0 14px; }
+  h1 { font-family: 'Fraunces', serif; font-weight: 600; font-size: clamp(34px,7vw,56px); line-height: 1.04; margin: 0 0 14px; }
   h1 .accent { font-style: italic; color: var(--coral); }
   .sub { font-size: 17px; color: var(--muted); max-width: 420px; margin: 0 auto; line-height: 1.5; }
 
+  /* Composer */
   .composer { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 20px; box-shadow: 0 14px 40px -20px rgba(120,80,30,.4); margin-bottom: 28px; }
   textarea { width: 100%; border: none; outline: none; resize: none; background: transparent; font-family: 'Fraunces', serif; font-size: 21px; line-height: 1.4; color: var(--ink); overflow: hidden; min-height: 32px; }
   textarea::placeholder { color: var(--faint); font-style: italic; }
@@ -41,35 +37,55 @@
   .mood-row { display: flex; flex-wrap: wrap; gap: 6px; }
   .mood-chip { border: 1.5px solid; border-radius: 999px; padding: 4px 12px; font-size: 13px; font-family: 'Newsreader', serif; background: transparent; color: var(--muted); cursor: pointer; transition: all .2s; text-transform: lowercase; }
   .composer-actions { display: flex; align-items: center; gap: 14px; margin-left: auto; }
-  .count { font-size: 13px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .char-count { font-size: 13px; color: var(--faint); font-variant-numeric: tabular-nums; }
   .post-btn { background: var(--ink); color: #fdf6ec; border: none; border-radius: 999px; padding: 10px 20px; font-size: 15px; font-family: 'Fraunces', serif; font-weight: 600; cursor: pointer; transition: opacity .2s; }
   .post-btn:disabled { opacity: .4; cursor: default; }
 
+  /* Filters */
   .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 28px; }
   .filter-chip { border: 1px solid #d8c3a3; background: transparent; color: var(--muted); border-radius: 999px; padding: 5px 14px; font-size: 14px; font-family: 'Newsreader', serif; cursor: pointer; transition: all .2s; text-transform: lowercase; }
   .filter-chip.active { background: var(--ink); color: #fdf6ec; border-color: var(--ink); }
 
+  /* Wall */
   .wall { columns: 2 300px; column-gap: 18px; }
-  .card { break-inside: avoid; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 20px 20px 16px; margin-bottom: 18px; position: relative; box-shadow: 0 10px 30px -18px rgba(120,80,30,.45); overflow: hidden; animation: rise .6s cubic-bezier(.2,.7,.2,1) both; transition: transform .25s, box-shadow .25s; }
-  .card:hover { transform: translateY(-4px) rotate(-0.4deg); }
+  .card { break-inside: avoid; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 20px 20px 14px; margin-bottom: 18px; position: relative; box-shadow: 0 10px 30px -18px rgba(120,80,30,.45); overflow: hidden; animation: rise .5s cubic-bezier(.2,.7,.2,1) both; transition: transform .25s, box-shadow .25s; }
+  .card:hover { transform: translateY(-3px) rotate(-0.3deg); }
+  .card:hover .card-actions { opacity: 1; }
   .card.flash { box-shadow: 0 0 0 3px var(--flash, var(--coral)); }
-  @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes rise { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
   .card-spine { position: absolute; left: 0; top: 0; bottom: 0; width: 5px; }
-  .card-text { font-family: 'Fraunces', serif; font-size: 19px; line-height: 1.42; margin: 0 0 16px; padding-left: 6px; }
-  .card-meta { display: flex; justify-content: space-between; align-items: center; padding-left: 6px; }
-  .card-mood { font-size: 13px; font-style: italic; text-transform: lowercase; }
-  .card-time { font-size: 13px; color: var(--faint); }
+  .card-text { font-family: 'Fraunces', serif; font-size: 19px; line-height: 1.42; margin: 0 0 14px; padding-left: 6px; }
 
-  footer { text-align: center; margin-top: 40px; font-size: 14px; color: var(--faint); font-style: italic; }
-  footer .clear { background: none; border: none; color: var(--faint); text-decoration: underline; cursor: pointer; font-family: inherit; font-size: 13px; font-style: italic; }
+  /* Edit textarea inside card */
+  .card-edit { display: none; width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-family: 'Fraunces', serif; font-size: 17px; line-height: 1.4; color: var(--ink); background: #fdf8f0; outline: none; resize: none; margin-bottom: 10px; }
+  .card-edit-actions { display: none; gap: 8px; margin-bottom: 10px; padding-left: 6px; }
+  .btn-save { background: var(--ink); color: #fdf6ec; border: none; border-radius: 999px; padding: 5px 14px; font-size: 13px; font-family: 'Newsreader', serif; cursor: pointer; }
+  .btn-cancel { background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 5px 14px; font-size: 13px; font-family: 'Newsreader', serif; cursor: pointer; color: var(--muted); }
+
+  /* Meta row */
+  .card-meta { display: flex; justify-content: space-between; align-items: center; padding-left: 6px; }
+  .card-left { display: flex; align-items: center; gap: 10px; }
+  .card-mood { font-size: 12px; font-style: italic; text-transform: lowercase; }
+  .card-ts { font-size: 11px; color: var(--faint); }
+
+  /* Action buttons (edit / delete) */
+  .card-actions { display: flex; gap: 6px; opacity: 0; transition: opacity .2s; }
+  .act-btn { background: none; border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 11px; font-family: 'Newsreader', serif; cursor: pointer; color: var(--muted); transition: all .15s; }
+  .act-btn:hover { border-color: var(--coral); color: var(--coral); }
+  .act-btn.del:hover { border-color: #c0392b; color: #c0392b; }
+
+  /* Empty state */
+  .empty { text-align: center; padding: 48px 20px; color: var(--faint); font-style: italic; font-size: 18px; line-height: 1.6; }
+
+  footer { text-align: center; margin-top: 40px; font-size: 13px; color: var(--faint); font-style: italic; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="kicker">a wall of small good things</div>
+    <div class="kicker">a wall of good moments</div>
     <h1>What made you <span class="accent">happy</span> today?</h1>
-    <p class="sub">Drop a moment. Read someone else's. No accounts, no likes, no noise.</p>
+    <p class="sub">Drop a moment. Come back and read it. Yours, always.</p>
   </header>
 
   <div class="composer">
@@ -77,7 +93,7 @@
     <div class="composer-bottom">
       <div class="mood-row" id="moodRow"></div>
       <div class="composer-actions">
-        <span class="count" id="count">240</span>
+        <span class="char-count" id="count">240</span>
         <button class="post-btn" id="postBtn" disabled>Add to the wall â</button>
       </div>
     </div>
@@ -89,130 +105,219 @@
 </div>
 
 <script>
-// ââ Mood palette ââ
 const MOODS = [
-  { key: "calm", color: "#8AB17D" },
-  { key: "loved", color: "#E76F51" },
-  { key: "delighted", color: "#F4A259" },
-  { key: "proud", color: "#E9C46A" },
-  { key: "moved", color: "#5B8E7D" },
-  { key: "lucky", color: "#F4A259" },
+  { key: "calm",     color: "#8AB17D" },
+  { key: "loved",    color: "#E76F51" },
+  { key: "delighted",color: "#F4A259" },
+  { key: "proud",    color: "#E9C46A" },
+  { key: "moved",    color: "#5B8E7D" },
+  { key: "lucky",    color: "#F4A259" },
 ];
 
-// ââ Seed content (always present; never stored) ââ
-const SEEDS = [
-  { id: "s1", text: "Found a parking spot right outside on the first try. Tiny miracle.", mood: "lucky", color: "#F4A259", ts: Date.now() - 6e5 },
-  { id: "s2", text: "My grandmother called just to tell me a joke she heard. It wasn't even funny but I laughed for ten minutes.", mood: "loved", color: "#E76F51", ts: Date.now() - 28e5 },
-  { id: "s3", text: "First coffee of the day, still warm, nobody needing anything from me yet.", mood: "calm", color: "#8AB17D", ts: Date.now() - 55e5 },
-  { id: "s4", text: "Finished a book I'd been stuck on for a month. The ending made me cry on the train.", mood: "moved", color: "#5B8E7D", ts: Date.now() - 9e6 },
-  { id: "s5", text: "The dog learned to fetch the newspaper. Mostly. He ate the sports section.", mood: "delighted", color: "#F4A259", ts: Date.now() - 13e6 },
-  { id: "s6", text: "Rain on the window, soup on the stove, nowhere to be.", mood: "calm", color: "#8AB17D", ts: Date.now() - 18e6 },
-  { id: "s7", text: "A stranger complimented my mismatched socks instead of judging them.", mood: "delighted", color: "#E76F51", ts: Date.now() - 24e6 },
-  { id: "s8", text: "Got the promotion. Told my mom first. She screamed louder than I did.", mood: "proud", color: "#E9C46A", ts: Date.now() - 31e6 },
-];
-
-const STORAGE_KEY = "smallgoodthings.posts.v1";
+const STORAGE_KEY = "happy.posts.v2";
 let activeMood = MOODS[0];
-let filter = null;
+let activeFilter = null;
 let flashId = null;
 
-const $ = (id) => document.getElementById(id);
+const $ = id => document.getElementById(id);
 
-function loadUserPosts() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const arr = JSON.parse(raw);
-    return Array.isArray(arr) ? arr : [];
-  } catch { return []; }
+// ââ Storage ââ
+function load() {
+  try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : []; }
+  catch { return []; }
 }
-function saveUserPosts(posts) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(posts)); }
-  catch (e) { console.error("Save failed", e); }
+function save(posts) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(posts)); } catch(e) { console.error(e); }
 }
 
-function allPosts() {
-  return [...loadUserPosts(), ...SEEDS];
+// ââ Timestamp formatting ââ
+function fmtDate(ts) {
+  const d = new Date(ts);
+  const now = new Date();
+  const sameYear = d.getFullYear() === now.getFullYear();
+  const pad = n => String(n).padStart(2,'0');
+  const time = pad(d.getHours()) + ':' + pad(d.getMinutes());
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const date = d.getDate() + ' ' + months[d.getMonth()] + (sameYear ? '' : ' ' + d.getFullYear());
+  // If today, show time only
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dDay = new Date(ts); dDay.setHours(0,0,0,0);
+  if (dDay.getTime() === today.getTime()) return 'today ' + time;
+  const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
+  if (dDay.getTime() === yesterday.getTime()) return 'yesterday ' + time;
+  return date + ' Â· ' + time;
 }
 
-function timeAgo(ts) {
-  const m = Math.floor((Date.now() - ts) / 60000);
-  if (m < 1) return "just now";
-  if (m < 60) return m + "m ago";
-  const h = Math.floor(m / 60);
-  if (h < 24) return h + "h ago";
-  return Math.floor(h / 24) + "d ago";
-}
-
+// ââ Render moods ââ
 function renderMoods() {
-  $("moodRow").innerHTML = "";
-  MOODS.forEach((m) => {
-    const b = document.createElement("button");
-    b.className = "mood-chip";
+  $('moodRow').innerHTML = '';
+  MOODS.forEach(m => {
+    const b = document.createElement('button');
+    b.className = 'mood-chip';
     b.textContent = m.key;
     b.style.borderColor = m.color;
-    if (activeMood.key === m.key) { b.style.background = m.color; b.style.color = "#1a1410"; }
+    if (activeMood.key === m.key) { b.style.background = m.color; b.style.color = '#1a1410'; }
     b.onclick = () => { activeMood = m; renderMoods(); };
-    $("moodRow").appendChild(b);
+    $('moodRow').appendChild(b);
   });
 }
 
-function renderFilters() {
-  const bar = $("filterBar");
-  bar.innerHTML = "";
+// ââ Render filters ââ
+function renderFilters(posts) {
+  const bar = $('filterBar');
+  bar.innerHTML = '';
+  const usedMoods = [...new Set(posts.map(p => p.mood))];
+  if (usedMoods.length < 2) return; // no point filtering if only one mood
   const mk = (label, key) => {
-    const b = document.createElement("button");
-    b.className = "filter-chip" + (filter === key ? " active" : "");
+    const b = document.createElement('button');
+    b.className = 'filter-chip' + (activeFilter === key ? ' active' : '');
     b.textContent = label;
-    if (filter === key && key) { const m = MOODS.find(x => x.key === key); b.style.background = m.color; b.style.borderColor = m.color; b.style.color = "#1a1410"; }
-    b.onclick = () => { filter = (filter === key ? null : key); render(); };
+    if (activeFilter === key && key) {
+      const m = MOODS.find(x => x.key === key);
+      if (m) { b.style.background = m.color; b.style.borderColor = m.color; b.style.color = '#1a1410'; }
+    }
+    b.onclick = () => { activeFilter = activeFilter === key ? null : key; render(); };
     return b;
   };
-  bar.appendChild(mk("everything", null));
-  MOODS.forEach((m) => bar.appendChild(mk(m.key, m.key)));
+  bar.appendChild(mk('all', null));
+  usedMoods.forEach(k => bar.appendChild(mk(k, k)));
 }
 
+// ââ Main render ââ
 function render() {
-  renderFilters();
-  const posts = allPosts().sort((a, b) => b.ts - a.ts);
-  const visible = filter ? posts.filter(p => p.mood === filter) : posts;
-  const wall = $("wall");
-  wall.innerHTML = "";
+  const all = load().sort((a,b) => b.ts - a.ts);
+  const visible = activeFilter ? all.filter(p => p.mood === activeFilter) : all;
+  renderFilters(all);
+  const wall = $('wall');
+  wall.innerHTML = '';
+
+  if (all.length === 0) {
+    wall.innerHTML = '<div class="empty">Your wall is empty.<br>Add your first happy moment above â</div>';
+    $('footer').textContent = '';
+    return;
+  }
+
   visible.forEach((p, i) => {
-    const card = document.createElement("article");
-    card.className = "card" + (flashId === p.id ? " flash" : "");
-    card.style.animationDelay = Math.min(i * 0.04, 0.5) + "s";
-    card.style.setProperty("--flash", p.color);
-    const isYou = !p.id.startsWith("s");
-    card.innerHTML =
-      '<div class="card-spine" style="background:' + p.color + '"></div>' +
-      '<p class="card-text"></p>' +
-      '<div class="card-meta">' +
-        '<span class="card-mood" style="color:' + p.color + '">â ' + p.mood + '</span>' +
-        '<span class="card-time">' + (isYou ? "you Â· " : "") + timeAgo(p.ts) + '</span>' +
-      '</div>';
-    card.querySelector(".card-text").textContent = p.text; // safe text insert
+    const card = document.createElement('article');
+    card.className = 'card' + (flashId === p.id ? ' flash' : '');
+    card.style.animationDelay = Math.min(i * 0.04, 0.4) + 's';
+    card.style.setProperty('--flash', p.color);
+
+    const spine  = document.createElement('div');
+    spine.className = 'card-spine';
+    spine.style.background = p.color;
+
+    const cardText = document.createElement('p');
+    cardText.className = 'card-text';
+    cardText.textContent = p.text;
+
+    // Edit textarea (hidden by default)
+    const editTA = document.createElement('textarea');
+    editTA.className = 'card-edit';
+    editTA.value = p.text;
+    editTA.rows = 2;
+    editTA.maxLength = 240;
+
+    const editActions = document.createElement('div');
+    editActions.className = 'card-edit-actions';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'btn-save'; saveBtn.textContent = 'Save';
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'btn-cancel'; cancelBtn.textContent = 'Cancel';
+    editActions.appendChild(saveBtn);
+    editActions.appendChild(cancelBtn);
+
+    // Meta row
+    const meta = document.createElement('div');
+    meta.className = 'card-meta';
+
+    const left = document.createElement('div');
+    left.className = 'card-left';
+
+    const moodSpan = document.createElement('span');
+    moodSpan.className = 'card-mood';
+    moodSpan.style.color = p.color;
+    moodSpan.textContent = 'â ' + p.mood;
+
+    const tsSpan = document.createElement('span');
+    tsSpan.className = 'card-ts';
+    tsSpan.textContent = fmtDate(p.ts);
+
+    left.appendChild(moodSpan);
+    left.appendChild(tsSpan);
+
+    // Edit / Delete buttons
+    const actions = document.createElement('div');
+    actions.className = 'card-actions';
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'act-btn'; editBtn.textContent = 'edit';
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'act-btn del'; delBtn.textContent = 'delete';
+
+    actions.appendChild(editBtn);
+    actions.appendChild(delBtn);
+    meta.appendChild(left);
+    meta.appendChild(actions);
+
+    card.appendChild(spine);
+    card.appendChild(cardText);
+    card.appendChild(editTA);
+    card.appendChild(editActions);
+    card.appendChild(meta);
     wall.appendChild(card);
-  });
-  const total = allPosts().length;
-  $("footer").innerHTML = total + " moments shared Â· " + visible.length + " showing Â· saved on this device" +
-    (loadUserPosts().length ? ' Â· <button class="clear" id="clearBtn">clear my posts</button>' : "");
-  const clr = $("clearBtn");
-  if (clr) clr.onclick = () => {
-    if (confirm("Remove all moments you've added on this device? This can't be undone.")) {
-      localStorage.removeItem(STORAGE_KEY); render();
+
+    // ââ Edit logic ââ
+    editBtn.onclick = () => {
+      const editing = editTA.style.display === 'block';
+      if (editing) { exitEdit(); return; }
+      cardText.style.display = 'none';
+      editTA.style.display = 'block';
+      editActions.style.display = 'flex';
+      editBtn.textContent = 'cancel';
+      editTA.focus();
+      editTA.style.height = 'auto';
+      editTA.style.height = editTA.scrollHeight + 'px';
+    };
+    function exitEdit() {
+      cardText.style.display = '';
+      editTA.style.display = 'none';
+      editActions.style.display = 'none';
+      editBtn.textContent = 'edit';
+      editTA.value = p.text;
     }
-  };
+    cancelBtn.onclick = exitEdit;
+    saveBtn.onclick = () => {
+      const newText = editTA.value.trim();
+      if (!newText) return;
+      const posts = load();
+      const idx = posts.findIndex(x => x.id === p.id);
+      if (idx > -1) { posts[idx].text = newText; save(posts); }
+      render();
+    };
+
+    // ââ Delete logic ââ
+    delBtn.onclick = () => {
+      if (!confirm('Delete this moment?')) return;
+      const posts = load().filter(x => x.id !== p.id);
+      save(posts);
+      render();
+    };
+  });
+
+  $('footer').textContent = all.length + ' moment' + (all.length !== 1 ? 's' : '') + ' Â· ' + visible.length + ' showing Â· saved on this device';
 }
 
+// ââ Submit ââ
 function submit() {
-  const ta = $("text");
+  const ta = $('text');
   const t = ta.value.trim();
   if (!t) return;
-  const post = { id: "u" + Date.now(), text: t, mood: activeMood.key, color: activeMood.color, ts: Date.now() };
-  const updated = [post, ...loadUserPosts()];
-  saveUserPosts(updated);
-  ta.value = "";
+  const post = { id: 'u' + Date.now(), text: t, mood: activeMood.key, color: activeMood.color, ts: Date.now() };
+  save([post, ...load()]);
+  ta.value = '';
   flashId = post.id;
   updateCount();
   render();
@@ -220,19 +325,16 @@ function submit() {
 }
 
 function updateCount() {
-  const ta = $("text");
-  $("count").textContent = 240 - ta.value.length;
-  $("postBtn").disabled = !ta.value.trim();
-  ta.style.height = "auto";
-  ta.style.height = ta.scrollHeight + "px";
+  const ta = $('text');
+  $('count').textContent = 240 - ta.value.length;
+  $('postBtn').disabled = !ta.value.trim();
+  ta.style.height = 'auto';
+  ta.style.height = ta.scrollHeight + 'px';
 }
 
-// ââ wire up ââ
-$("text").addEventListener("input", updateCount);
-$("text").addEventListener("keydown", (e) => {
-  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") submit();
-});
-$("postBtn").addEventListener("click", submit);
+$('text').addEventListener('input', updateCount);
+$('text').addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') submit(); });
+$('postBtn').addEventListener('click', submit);
 
 renderMoods();
 render();
