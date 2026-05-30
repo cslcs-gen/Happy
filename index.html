@@ -646,6 +646,7 @@ function render(){
     left.appendChild(moodSp); left.appendChild(tsSp);
 
     var actD=document.createElement('div'); actD.className='card-actions';
+    if(manageMode) actD.style.opacity='1';
     var edBtn=document.createElement('button'); edBtn.className='act-btn'; edBtn.textContent='edit';
     var dlBtn=document.createElement('button'); dlBtn.className='act-btn del'; dlBtn.textContent='delete';
     if(manageMode) dlBtn.style.display='none';
