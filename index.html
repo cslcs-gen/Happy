@@ -550,19 +550,21 @@ function fetchInsight(posts){
   })
   .then(function(res){ return res.json(); })
   .then(function(data){
+    console.log('Worker response:', JSON.stringify(data));
     var text=data.content&&data.content[0]&&data.content[0].text;
-    if(!text) throw new Error('No response');
+    if(!text) throw new Error('No content in response: '+JSON.stringify(data));
     var clean=text.replace(/```json|```/g,'').trim();
     var parsed=JSON.parse(clean);
     insightCache=parsed;
     renderInsightContent(parsed);
   })
   .catch(function(err){
-    var msg = err && err.message ? err.message : 'Network error';
+    var msg = err && err.message ? err.message : 'Unknown error';
+    console.error('Insight fetch error:', err);
     el('insightPanel').innerHTML=
       '<div class="insight-panel">'+
         '<div class="i-label">Your happiness insights</div>'+
-        '<div class="i-text" style="font-size:15px;opacity:.7;">Could not load insights right now. Keep adding moments &mdash; your patterns are building.</div>'+
+        '<div class="i-text" style="font-size:13px;opacity:.8;font-family:monospace;word-break:break-all;">Error: '+msg+'</div>'+
         '<div class="i-actions"><button class="i-btn" onclick="insightCache=null;render()">Try again</button></div>'+
       '</div>';
   });
@@ -629,8 +631,10 @@ function render(){
 
     var editTA=document.createElement('textarea');
     editTA.className='card-edit'; editTA.value=p.text; editTA.rows=2; editTA.maxLength=240;
+    editTA.style.display='none';
 
     var eRow=document.createElement('div'); eRow.className='card-edit-row';
+    eRow.style.display='none';
     var svBtn=document.createElement('button'); svBtn.className='btn-save'; svBtn.textContent='Save';
     var cnBtn=document.createElement('button'); cnBtn.className='btn-cancel'; cnBtn.textContent='Cancel';
     eRow.appendChild(svBtn); eRow.appendChild(cnBtn);
@@ -642,9 +646,9 @@ function render(){
     left.appendChild(moodSp); left.appendChild(tsSp);
 
     var actD=document.createElement('div'); actD.className='card-actions';
-    if(manageMode) actD.style.display='none';
     var edBtn=document.createElement('button'); edBtn.className='act-btn'; edBtn.textContent='edit';
     var dlBtn=document.createElement('button'); dlBtn.className='act-btn del'; dlBtn.textContent='delete';
+    if(manageMode) dlBtn.style.display='none';
     actD.appendChild(edBtn); actD.appendChild(dlBtn);
 
     meta.appendChild(left); meta.appendChild(actD);
@@ -658,13 +662,17 @@ function render(){
     }
 
     // Edit
+    var editing=false;
     edBtn.addEventListener('click',function(){
-      if(editTA.style.display==='block'){ exitEdit(); return; }
+      if(editing){ exitEdit(); return; }
+      editing=true;
       ct.style.display='none'; editTA.style.display='block'; eRow.style.display='flex';
-      edBtn.textContent='cancel'; editTA.focus();
+      edBtn.textContent='cancel';
       editTA.style.height='auto'; editTA.style.height=editTA.scrollHeight+'px';
+      editTA.focus(); editTA.setSelectionRange(editTA.value.length,editTA.value.length);
     });
     function exitEdit(){
+      editing=false;
       ct.style.display=''; editTA.style.display='none'; eRow.style.display='none';
       edBtn.textContent='edit'; editTA.value=p.text;
     }
