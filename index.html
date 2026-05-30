@@ -537,9 +537,10 @@ function fetchInsight(posts){
   var name=user&&user.name?user.name:'you';
   var recent=posts.slice(0,20);
   var summary=recent.map(function(p){ return '['+p.mood+'] '+p.text; }).join('\n');
-  fetch('https://api.anthropic.com/v1/messages',{
+  var WORKER_URL = 'https://happy.cslcs-gen.workers.dev';
+  fetch(WORKER_URL,{
     method:'POST',
-    headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       model:'claude-sonnet-4-20250514',
       max_tokens:400,
