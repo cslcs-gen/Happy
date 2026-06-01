@@ -285,8 +285,9 @@ button{cursor:pointer;font-family:inherit;border:none;}
         <div class="app-greeting" id="greeting"></div>
       </div>
       <div class="app-header-right">
-        <button class="icon-btn" id="homeToggle">Skip home</button>
-        <button class="icon-btn" id="aboutBtn">About</button>
+        <button class="icon-btn" id="homeToggle">Home</button>
+        <button class="icon-btn" id="exportBtn">Export</button>
+        <button class="icon-btn" id="importBtn">Import</button>
       </div>
     </div>
 
@@ -385,26 +386,21 @@ function showApp(){
   var user = loadUser();
   if(user && user.name){
     el('greeting').textContent = 'Welcome back, ' + user.name + '.';
-    syncHomeToggle(user);
+    el('homeToggle').textContent = 'Home';
   }
   renderMoods();
   render();
 }
 
-function syncHomeToggle(user){
-  var btn = el('homeToggle');
-  btn.textContent = user.skipLanding ? 'Show home' : 'Skip home';
-}
+
 
 // ==================== BOOT ====================
 (function(){
   var user = loadUser();
   if(!user || !user.name){
-    showScreen('landing');
-  } else if(user.skipLanding){
-    showApp();
+    showScreen('landing'); // first time visitor
   } else {
-    showScreen('landing');
+    showApp(); // returning user always goes straight to app
   }
 })();
 
@@ -429,12 +425,49 @@ el('nameBtn').addEventListener('click', function(){
 
 // ==================== APP BUTTONS ====================
 el('homeToggle').addEventListener('click', function(){
-  var user = loadUser() || {};
-  user.skipLanding = !user.skipLanding;
-  saveUser(user);
-  syncHomeToggle(user);
+  goLanding();
 });
 el('aboutBtn').addEventListener('click', function(){ goLanding(); });
+
+el('exportBtn').addEventListener('click', function(){
+  var posts = loadPosts();
+  if(posts.length === 0){ alert('No moments to export yet.'); return; }
+  var data = JSON.stringify({version:1, exported: new Date().toISOString(), posts: posts});
+  var blob = new Blob([data], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'happy-moments.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+});
+
+el('importBtn').addEventListener('click', function(){
+  var input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = function(e){
+    var file = e.target.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      try{
+        var data = JSON.parse(ev.target.result);
+        var incoming = data.posts || data; // support both formats
+        if(!Array.isArray(incoming)) throw new Error('Invalid file');
+        var existing = loadPosts();
+        var existingIds = {};
+        existing.forEach(function(p){ existingIds[p.id]=true; });
+        var merged = existing.concat(incoming.filter(function(p){ return !existingIds[p.id]; }));
+        savePosts(merged);
+        insightCache = null;
+        render();
+        alert('Imported ' + incoming.length + ' moments. ' + (incoming.length - (merged.length - existing.length)) + ' duplicates skipped.');
+      } catch(err){
+        alert('Could not read file. Make sure it was exported from Happy.');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+});
 
 el('selAllBtn').addEventListener('click', function(){
   var posts = loadPosts().sort(function(a,b){ return b.ts-a.ts; });
