@@ -565,41 +565,48 @@ function renderInsight(posts){
   fetchInsight(posts);
 }
 
+function triggerInsight(){
+  var posts=loadPosts().sort(function(a,b){ return b.ts-a.ts; });
+  if(posts.length<7) return;
+  el('insightTrigger').style.display='none';
+  el('insightPanel').innerHTML=
+    '<div class="insight-panel">'+
+      '<div class="i-label">Your happiness insights</div>'+
+      '<div class="i-loading"><div class="i-dot"></div><div class="i-dot"></div><div class="i-dot"></div>&nbsp;Reading your moments&hellip;</div>'+
+    '</div>';
+  fetchInsight(posts);
+}
+
 function fetchInsight(posts){
   var user=loadUser();
   var name=user&&user.name?user.name:'you';
   var recent=posts.slice(0,20);
   var summary=recent.map(function(p){ return '['+p.mood+'] '+p.text; }).join('\n');
-  var WORKER_URL = 'https://happy.cslcs-gen.workers.dev';
-  fetch(WORKER_URL,{
+  var prompt='My name is '+name+'. Here are my recent happy moments:\n\n'+summary+'\n\nRespond ONLY with a JSON object (no markdown, no extra text) with exactly these two keys: "pattern" (one warm specific sentence about what makes me happy, referring to my actual moments), "suggestion" (one gentle concrete positive activity for me to try today, 1-2 sentences).';
+  fetch('https://happy.cslcs-gen.workers.dev',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      model:'claude-sonnet-4-20250514',
-      max_tokens:400,
-      system:'You are a warm, perceptive wellbeing coach. Read the user\'s happy moments and respond ONLY with a JSON object (no markdown, no preamble) with keys: "pattern" (one warm sentence about what makes them happy, be specific to their moments), "suggestion" (one gentle, concrete positive activity for today based on their patterns, 1-2 sentences).',
-      messages:[{role:'user',content:'My name is '+name+'. My recent happy moments:\n\n'+summary}]
-    })
+    body:JSON.stringify({prompt:prompt})
   })
   .then(function(res){ return res.json(); })
   .then(function(data){
-    console.log('Worker response:', JSON.stringify(data));
-    var text=data.content&&data.content[0]&&data.content[0].text;
-    if(!text) throw new Error('No content in response: '+JSON.stringify(data));
+    var text=data.text;
+    if(!text) throw new Error('No response');
     var clean=text.replace(/```json|```/g,'').trim();
     var parsed=JSON.parse(clean);
     insightCache=parsed;
+    el('insightTrigger').style.display='none';
     renderInsightContent(parsed);
   })
   .catch(function(err){
-    var msg = err && err.message ? err.message : 'Unknown error';
-    console.error('Insight fetch error:', err);
+    console.error('Insight error:',err);
     el('insightPanel').innerHTML=
       '<div class="insight-panel">'+
         '<div class="i-label">Your happiness insights</div>'+
-        '<div class="i-text" style="font-size:13px;opacity:.8;font-family:monospace;word-break:break-all;">Error: '+msg+'</div>'+
-        '<div class="i-actions"><button class="i-btn" onclick="insightCache=null;render()">Try again</button></div>'+
+        '<div class="i-text" style="font-size:15px;opacity:.7;">Could not load right now. Try again shortly.</div>'+
+        '<div class="i-actions"><button class="i-btn" onclick="triggerInsight()">Try again</button></div>'+
       '</div>';
+    el('insightTrigger').style.display='none';
   });
 }
 
@@ -612,7 +619,7 @@ function renderInsightContent(d){
   var sug=document.createElement('div'); sug.className='i-suggest'; sug.textContent=d.suggestion;
   var acts=document.createElement('div'); acts.className='i-actions';
   var refBtn=document.createElement('button'); refBtn.className='i-btn'; refBtn.textContent='Refresh';
-  refBtn.addEventListener('click',function(){ insightCache=null; render(); });
+  refBtn.addEventListener('click',function(){ insightCache=null; el('insightPanel').innerHTML=''; triggerInsight(); });
   acts.appendChild(refBtn);
   div.appendChild(label); div.appendChild(txt); div.appendChild(sug); div.appendChild(acts);
   panel.innerHTML=''; panel.appendChild(div);
@@ -748,6 +755,9 @@ function renderFooter(total,showing){
   });
   f.appendChild(btn);
 }
+
+// ==================== INSIGHT BUTTON ====================
+el('insightBtn').addEventListener('click', function(){ triggerInsight(); });
 
 // ==================== SUBMIT ====================
 function updateCount(){
