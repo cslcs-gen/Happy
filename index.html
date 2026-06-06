@@ -580,63 +580,23 @@ function triggerInsight(){
   fetchInsight(posts);
 }
 
-function getGeminiKey(){ return localStorage.getItem('happy.gemini.key')||''; }
-function saveGeminiKey(k){ localStorage.setItem('happy.gemini.key',k.trim()); }
-
-function showKeyModal(onSave){
-  var overlay=document.createElement('div');
-  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;';
-  var box=document.createElement('div');
-  box.style.cssText='background:#fffdf8;border-radius:18px;padding:28px 24px;max-width:420px;width:100%;font-family:Newsreader,serif;';
-  box.innerHTML=
-    '<div style="font-family:Fraunces,serif;font-weight:600;font-size:20px;margin-bottom:10px;">Your Gemini API key</div>'+
-    '<p style="font-size:14px;color:#7a6f63;margin-bottom:16px;line-height:1.6;">Get a free key at <b>aistudio.google.com</b> &rarr; Get API key &rarr; Create API key. No credit card needed.</p>'+
-    '<input id="geminiKeyInput" type="text" placeholder="Paste key here (AIza...)" style="width:100%;border:1.5px solid #ead9bf;border-radius:10px;padding:12px;font-size:15px;font-family:inherit;outline:none;margin-bottom:14px;"/>'+
-    '<div style="display:flex;gap:10px;">'+
-      '<button id="geminiKeySave" style="flex:1;background:#E76F51;color:#fff;border:none;border-radius:999px;padding:12px;font-family:Fraunces,serif;font-weight:600;font-size:15px;cursor:pointer;">Save &amp; unlock</button>'+
-      '<button id="geminiKeyCancel" style="background:none;border:1px solid #ead9bf;border-radius:999px;padding:12px 16px;font-family:inherit;cursor:pointer;color:#7a6f63;font-size:14px;">Cancel</button>'+
-    '</div>';
-  overlay.appendChild(box);
-  document.body.appendChild(overlay);
-  setTimeout(function(){ el('geminiKeyInput').focus(); },100);
-  el('geminiKeySave').onclick=function(){
-    var k=el('geminiKeyInput').value.trim();
-    if(!k) return;
-    saveGeminiKey(k);
-    document.body.removeChild(overlay);
-    onSave(k);
-  };
-  el('geminiKeyCancel').onclick=function(){ document.body.removeChild(overlay); };
-}
+var WORKER_URL='https://happy.cslcs-gen.workers.dev';
 
 function fetchInsight(posts){
-  var key=getGeminiKey();
-  if(!key){
-    showKeyModal(function(){ triggerInsight(); });
-    return;
-  }
   var user=loadUser();
   var name=user&&user.name?user.name:'you';
   var recent=posts.slice(0,20);
   var summary=recent.map(function(p){ return '['+p.mood+'] '+p.text; }).join('\n');
   var prompt='My name is '+name+'. Here are my recent happy moments:\n\n'+summary+'\n\nRespond ONLY with a JSON object (no markdown, no extra text) with exactly these two keys: "pattern" (one warm specific sentence about what makes me happy, referring to my actual moments), "suggestion" (one gentle concrete positive activity for me to try today, 1-2 sentences).';
-  var url='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+key;
-  fetch(url,{
+  fetch(WORKER_URL,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+    body:JSON.stringify({prompt:prompt})
   })
   .then(function(res){ return res.json(); })
   .then(function(data){
-    if(data.error){
-      // Bad key - clear it and show error
-      if(data.error.code===400||data.error.code===403){
-        localStorage.removeItem('happy.gemini.key');
-      }
-      throw new Error(data.error.message||'API error');
-    }
-    var text=data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&data.candidates[0].content.parts[0].text;
-    if(!text) throw new Error('Empty response from Gemini');
+    var text=data.text;
+    if(!text) throw new Error('No response from server');
     var clean=text.replace(/```json|```/g,'').trim();
     var parsed=JSON.parse(clean);
     insightCache=parsed;
@@ -648,11 +608,8 @@ function fetchInsight(posts){
     el('insightPanel').innerHTML=
       '<div class="insight-panel">'+
         '<div class="i-label">Your happiness insights</div>'+
-        '<div class="i-text" style="font-size:15px;opacity:.7;">'+escHtml(err.message)+'</div>'+
-        '<div class="i-actions">'+
-          '<button class="i-btn" onclick="triggerInsight()">Try again</button>'+
-          '<button class="i-btn" onclick="localStorage.removeItem('happy.gemini.key');triggerInsight()">Change key</button>'+
-        '</div>'+
+        '<div class="i-text" style="font-size:15px;opacity:.7;">Could not load right now. Try again shortly.</div>'+
+        '<div class="i-actions"><button class="i-btn" onclick="triggerInsight()">Try again</button></div>'+
       '</div>';
     el('insightTrigger').style.display='none';
   });
