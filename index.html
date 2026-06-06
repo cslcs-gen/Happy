@@ -581,6 +581,7 @@ function triggerInsight(){
 }
 
 var WORKER_URL='https://happy.cslcs-gen.workers.dev';
+var APP_TOKEN='happy-app-2026-cslcs';
 
 function fetchInsight(posts){
   var user=loadUser();
@@ -590,7 +591,7 @@ function fetchInsight(posts){
   var prompt='My name is '+name+'. Here are my recent happy moments:\n\n'+summary+'\n\nRespond ONLY with a JSON object (no markdown, no extra text) with exactly these two keys: "pattern" (one warm specific sentence about what makes me happy, referring to my actual moments), "suggestion" (one gentle concrete positive activity for me to try today, 1-2 sentences).';
   fetch(WORKER_URL,{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:{'Content-Type':'application/json','X-Happy-Token':APP_TOKEN},
     body:JSON.stringify({prompt:prompt})
   })
   .then(function(res){ return res.json(); })
