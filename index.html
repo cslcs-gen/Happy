@@ -580,21 +580,43 @@ function triggerInsight(){
   fetchInsight(posts);
 }
 
+function getGeminiKey(){
+  var k=localStorage.getItem('happy.gemini.key');
+  if(k) return k;
+  k=prompt('Paste your free Gemini API key to unlock insights:\n\nGet one free at aistudio.google.com');
+  if(k && k.trim()){ localStorage.setItem('happy.gemini.key',k.trim()); return k.trim(); }
+  return null;
+}
+
 function fetchInsight(posts){
+  var key=getGeminiKey();
+  if(!key){
+    el('insightPanel').innerHTML='';
+    el('insightTrigger').style.display='block';
+    return;
+  }
   var user=loadUser();
   var name=user&&user.name?user.name:'you';
   var recent=posts.slice(0,20);
   var summary=recent.map(function(p){ return '['+p.mood+'] '+p.text; }).join('\n');
   var prompt='My name is '+name+'. Here are my recent happy moments:\n\n'+summary+'\n\nRespond ONLY with a JSON object (no markdown, no extra text) with exactly these two keys: "pattern" (one warm specific sentence about what makes me happy, referring to my actual moments), "suggestion" (one gentle concrete positive activity for me to try today, 1-2 sentences).';
-  fetch('https://happy.cslcs-gen.workers.dev',{
+  var url='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+key;
+  fetch(url,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({prompt:prompt})
+    body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
   })
   .then(function(res){ return res.json(); })
   .then(function(data){
-    var text=data.text;
-    if(!text) throw new Error('No response');
+    if(data.error){
+      // Bad key - clear it and show error
+      if(data.error.code===400||data.error.code===403){
+        localStorage.removeItem('happy.gemini.key');
+      }
+      throw new Error(data.error.message||'API error');
+    }
+    var text=data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&data.candidates[0].content.parts[0].text;
+    if(!text) throw new Error('Empty response from Gemini');
     var clean=text.replace(/```json|```/g,'').trim();
     var parsed=JSON.parse(clean);
     insightCache=parsed;
@@ -606,12 +628,17 @@ function fetchInsight(posts){
     el('insightPanel').innerHTML=
       '<div class="insight-panel">'+
         '<div class="i-label">Your happiness insights</div>'+
-        '<div class="i-text" style="font-size:15px;opacity:.7;">Could not load right now. Try again shortly.</div>'+
-        '<div class="i-actions"><button class="i-btn" onclick="triggerInsight()">Try again</button></div>'+
+        '<div class="i-text" style="font-size:15px;opacity:.7;">'+escHtml(err.message)+'</div>'+
+        '<div class="i-actions">'+
+          '<button class="i-btn" onclick="triggerInsight()">Try again</button>'+
+          '<button class="i-btn" onclick="localStorage.removeItem('happy.gemini.key');triggerInsight()">Reset key</button>'+
+        '</div>'+
       '</div>';
     el('insightTrigger').style.display='none';
   });
 }
+
+function escHtml(s){ var d=document.createElement('div');d.textContent=s;return d.innerHTML; }
 
 function renderInsightContent(d){
   var panel=el('insightPanel');
