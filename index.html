@@ -379,7 +379,15 @@ var manageMode   = false;
 var selected     = {};
 var insightCache = null;
 
-function el(id){ return document.getElementById(id); }
+function el(id){
+  var elem = document.getElementById(id);
+  if(!elem) console.error('Happy: element not found: #' + id + ' â check HTML/JS sync');
+  return elem;
+}
+function safeOn(id, evt, fn){
+  var elem = el(id);
+  if(elem) elem.addEventListener(evt, fn);
+}
 
 // ==================== STORAGE ====================
 function loadUser(){
@@ -496,7 +504,7 @@ el('homeToggle').addEventListener('click', function(){
   saveUser(user);
   syncHomeToggle(user);
 });
-el('aboutBtn').addEventListener('click', function(){ goLanding(); });
+// homeToggle handles navigation to landing
 
 el('selAllBtn').addEventListener('click', function(){
   var posts = loadPosts().sort(function(a,b){ return b.ts-a.ts; });
