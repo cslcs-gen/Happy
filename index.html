@@ -420,10 +420,13 @@ function savePosts(p){
 
 // ==================== DATE TIME ====================
 function updateDateTime(){
-  var dtEl = el('greeting');
+  var dtEl = document.getElementById('greeting');
   if(!dtEl) return;
   var user = loadUser();
   if(!user || !user.name) return;
+  // Only update when app screen is active
+  var appScreen = document.getElementById('app');
+  if(!appScreen || !appScreen.className.includes('active')) return;
   var now = new Date();
   var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -431,7 +434,7 @@ function updateDateTime(){
   var dayName = days[now.getDay()];
   var date = dayName + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
   var time = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
-  dtEl.textContent = 'Welcome back, ' + user.name + '  &middot;  ' + date + '  ' + time;
+  dtEl.textContent = 'Welcome back, ' + user.name + ' - ' + date + ' ' + time;
 }
 // Update clock every second
 setInterval(function(){ updateDateTime(); }, 1000);
@@ -449,9 +452,15 @@ function goLanding(){ showScreen('landing'); }
 
 function goOnboard(){
   var user = loadUser();
-  if(user && user.name){ showApp(); return; }
+  if(user && user.name){
+    showApp();
+    return;
+  }
   showScreen('onboarding');
-  setTimeout(function(){ el('nameInput').focus(); }, 250);
+  setTimeout(function(){
+    var inp = document.getElementById('nameInput');
+    if(inp) inp.focus();
+  }, 300);
 }
 
 function finishOnboard(){
@@ -484,9 +493,7 @@ function syncHomeToggle(user){
 // ==================== BOOT ====================
 (function(){
   var user = loadUser();
-  if(!user || !user.name){
-    showScreen('landing');
-  } else if(user.skipLanding){
+  if(user && user.name){
     showApp();
   } else {
     showScreen('landing');
