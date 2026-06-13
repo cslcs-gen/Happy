@@ -145,7 +145,7 @@ button{cursor:pointer;font-family:inherit;}
 <div id="app" class="screen">
   <div class="app-top">
     <div>
-      <div class="app-logo">H<em>appy</em></div>
+      <div class="app-logo">H<em>appy</em> <span style="font-size:11px;font-weight:400;color:#b8ab9b;font-style:normal;letter-spacing:.05em;">v1.0</span></div>
       <div class="app-greet" id="greeting"></div>
     </div>
     <div class="app-btns">
@@ -164,10 +164,10 @@ button{cursor:pointer;font-family:inherit;}
       <textarea class="compose-ta" id="ta" rows="1" maxlength="240" placeholder="Something small. Something true."></textarea>
       <div class="compose-row">
         <div class="moods" id="moods"></div>
-        <div class="mood-popup" id="moodPopup">
-          <div class="mood-popup-hdr" id="moodPopupHdr"></div>
-        </div>
         <button class="add-btn" id="addBtn">Add &rarr;</button>
+      </div>
+      <div class="mood-popup" id="moodPopup">
+        <div class="mood-popup-hdr" id="moodPopupHdr"></div>
       </div>
     </div>
 
@@ -328,26 +328,33 @@ function renderMoods(){
     if(mood.key===m.key){ b.style.background=m.color; b.style.color='#1a1410'; }
     b.onclick=function(e){
       e.stopPropagation();
-      if(mood.key===m.key){
-        // Toggle popup
-        var pop=G('moodPopup');
-        if(pop.className.includes('open')){ closePopup(); return; }
-        closePopup();
-        G('moodPopupHdr').textContent=m.key+' - tap to use';
-        m.ex.forEach(function(ex){
-          var item=document.createElement('div');
-          item.className='mood-popup-item';
-          item.textContent=ex;
-          item.onclick=function(){
-            G('ta').value=ex; updateAdd(); closePopup(); G('ta').focus();
-          };
-          pop.appendChild(item);
+      var pop=G('moodPopup');
+      var isSelected=(mood.key===m.key);
+      var isOpen=pop.className.includes('open');
+      // If already selected and popup open - close it
+      if(isSelected && isOpen){ closePopup(); return; }
+      // Select this mood
+      mood=m; renderMoods();
+      // Always show popup on tap
+      closePopup();
+      G('moodPopupHdr').textContent=m.key+' examples - tap to use';
+      m.ex.forEach(function(ex){
+        var item=document.createElement('div');
+        item.className='mood-popup-item';
+        item.textContent=ex;
+        item.onclick=function(e){
+          e.stopPropagation();
+          G('ta').value=ex; updateAdd(); closePopup(); G('ta').focus();
+        };
+        pop.appendChild(item);
+      });
+      pop.className='mood-popup open';
+      // Close on outside tap
+      setTimeout(function(){
+        document.addEventListener('click', function h(){
+          closePopup(); document.removeEventListener('click',h);
         });
-        pop.className='mood-popup open';
-      } else {
-        closePopup();
-        mood=m; renderMoods();
-      }
+      }, 10);
     };
     row.appendChild(b);
   });
