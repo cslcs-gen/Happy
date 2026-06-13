@@ -1,25 +1,913 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Button Test</title>
+<meta charset="UTF-8"><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Happy - your personal wall of good moments</title>
+<meta name="description" content="A private wall of happy moments. Yours alone. No accounts, no tracking, no ads."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,800;1,9..144,400;1,9..144,600&family=Newsreader:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#1e1510; --muted:#7a6f63; --faint:#b8ab9b;
+  --paper:#fffdf8; --cream:#f6ead8; --line:#ead9bf;
+  --coral:#E76F51; --red:#c0392b; --shadow:rgba(120,80,30,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Newsreader',Georgia,serif;color:var(--ink);background:var(--paper);overflow-x:hidden;}
+button{cursor:pointer;font-family:inherit;border:none;}
+
+/* SCREENS */
+.screen{display:none;min-height:100vh;}
+.screen.active{display:block;}
+#onboarding.active{display:flex;}
+
+/* LOGO - used across all screens */
+.logo{font-family:'Fraunces',serif;font-weight:800;letter-spacing:-.02em;}
+.logo .logo-H{color:var(--ink);}
+.logo .logo-appy{color:var(--coral);font-style:italic;}
+
+/* ======================== LANDING ======================== */
+#landing{
+  background:radial-gradient(ellipse 120% 80% at 60% -10%, #fdf6ec 0%, #f0dfc5 50%, #e8d0ad 100%);
+  position:relative; overflow:hidden;
+}
+#landing::before{
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c8a97a' fill-opacity='0.06'%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3C/g%3E%3C/svg%3E");
+}
+.land-wrap{max-width:900px;margin:0 auto;padding:0 28px;}
+.land-nav{display:flex;align-items:center;justify-content:space-between;padding:28px 0 0;}
+.land-nav .logo{font-size:22px;}
+.land-nav-cta{background:var(--ink);color:var(--paper);border-radius:999px;padding:10px 22px;font-size:14px;font-weight:600;letter-spacing:.02em;transition:transform .2s,box-shadow .2s;}
+.land-nav-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px var(--shadow);}
+.hero{padding:80px 0 60px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+@media(max-width:640px){.hero{grid-template-columns:1fr;gap:40px;padding:60px 0 40px;}}
+.hero-eyebrow{font-style:italic;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#b07a45;margin-bottom:20px;}
+.hero-h1{font-family:'Fraunces',serif;font-weight:800;font-size:clamp(44px,7vw,72px);line-height:.96;letter-spacing:-.03em;margin-bottom:24px;}
+.hero-h1 em{font-style:italic;color:var(--coral);}
+.hero-p{font-size:18px;line-height:1.65;color:var(--muted);max-width:440px;margin-bottom:36px;}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;align-items:center;}
+.btn-primary{background:var(--coral);color:#fff;border-radius:999px;padding:16px 32px;font-family:'Fraunces',serif;font-weight:600;font-size:17px;transition:transform .2s,box-shadow .2s;}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(231,111,81,.35);}
+.hero-note{font-size:13px;color:var(--faint);font-style:italic;}
+.hero-visual{position:relative;height:380px;}
+@media(max-width:640px){.hero-visual{height:260px;}}
+.float-card{position:absolute;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px 20px 14px;box-shadow:0 16px 48px -12px var(--shadow);max-width:220px;font-family:'Fraunces',serif;font-size:15px;line-height:1.45;}
+.float-card .fc-spine{position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:16px 0 0 16px;}
+.float-card .fc-mood{font-size:11px;font-style:italic;margin-top:10px;opacity:.65;}
+.fc1{top:10px;left:0;transform:rotate(-3deg);animation:float1 6s ease-in-out infinite;}
+.fc2{top:80px;right:10px;transform:rotate(2deg);animation:float2 7s ease-in-out infinite;}
+.fc3{bottom:30px;left:30px;transform:rotate(1.5deg);animation:float3 5.5s ease-in-out infinite;}
+@keyframes float1{0%,100%{transform:rotate(-3deg) translateY(0);}50%{transform:rotate(-3deg) translateY(-10px);}}
+@keyframes float2{0%,100%{transform:rotate(2deg) translateY(0);}50%{transform:rotate(2deg) translateY(-8px);}}
+@keyframes float3{0%,100%{transform:rotate(1.5deg) translateY(0);}50%{transform:rotate(1.5deg) translateY(-12px);}}
+.why{padding:80px 0;border-top:1px solid var(--line);}
+.section-label{font-style:italic;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#b07a45;margin-bottom:16px;}
+.why-h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(28px,4vw,44px);line-height:1.1;margin-bottom:48px;max-width:560px;}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;}
+@media(max-width:640px){.why-grid{grid-template-columns:1fr;}}
+.why-card{background:rgba(255,255,255,.6);border:1px solid var(--line);border-radius:18px;padding:28px 24px;}
+.why-icon{font-size:28px;margin-bottom:14px;}
+.why-card h3{font-family:'Fraunces',serif;font-size:19px;font-weight:600;margin-bottom:10px;}
+.why-card p{font-size:15px;line-height:1.6;color:var(--muted);}
+.privacy-band{background:var(--ink);color:var(--cream);padding:48px 28px;text-align:center;}
+.privacy-band h2{font-family:'Fraunces',serif;font-size:clamp(24px,4vw,38px);font-weight:600;margin-bottom:16px;font-style:italic;}
+.privacy-band p{font-size:16px;line-height:1.65;max-width:560px;margin:0 auto 28px;opacity:.8;}
+.privacy-items{display:flex;gap:32px;justify-content:center;flex-wrap:wrap;margin-top:8px;}
+.privacy-item{font-size:14px;opacity:.75;display:flex;align-items:center;gap:8px;}
+.privacy-item::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--coral);}
+.final-cta{padding:100px 28px;text-align:center;background:radial-gradient(ellipse 80% 60% at 50% 100%, #fdf0dc 0%, var(--paper) 70%);}
+.final-cta h2{font-family:'Fraunces',serif;font-weight:800;font-size:clamp(32px,5vw,56px);line-height:1.05;letter-spacing:-.03em;margin-bottom:20px;}
+.final-cta h2 em{font-style:italic;color:var(--coral);}
+.final-cta p{font-size:17px;color:var(--muted);max-width:420px;margin:0 auto 36px;line-height:1.6;}
+
+/* ======================== ONBOARDING ======================== */
+#onboarding{
+  background:radial-gradient(120% 80% at 50% -10%, #fdf6ec 0%, #f6ead8 55%, #f0e0c8 100%);
+  align-items:center; justify-content:center;
+}
+.onboard-box{max-width:480px;width:100%;margin:0 auto;padding:48px 28px;text-align:center;}
+.onboard-box .logo{font-size:28px;display:block;margin-bottom:48px;}
+.onboard-h{font-family:'Fraunces',serif;font-weight:600;font-size:32px;line-height:1.1;margin-bottom:12px;}
+.onboard-sub{font-size:16px;color:var(--muted);margin-bottom:36px;line-height:1.55;}
+.name-input{width:100%;border:2px solid var(--line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:22px;color:var(--ink);background:var(--paper);outline:none;text-align:center;transition:border-color .2s;}
+.name-input:focus{border-color:var(--coral);}
+.name-input::placeholder{color:var(--faint);font-style:italic;}
+.onboard-hint{font-size:13px;color:var(--faint);margin-top:10px;font-style:italic;}
+.onboard-btn{width:100%;margin-top:28px;background:var(--coral);color:#fff;border-radius:999px;padding:16px;font-family:'Fraunces',serif;font-weight:600;font-size:18px;transition:transform .2s,box-shadow .2s,opacity .2s;opacity:.4;pointer-events:none;}
+.onboard-btn.ready{opacity:1;pointer-events:auto;}
+.onboard-btn.ready:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(231,111,81,.35);}
+.onboard-privacy{font-size:12px;color:var(--faint);margin-top:16px;font-style:italic;}
+
+/* ======================== APP ======================== */
+#app{background:radial-gradient(120% 80% at 50% -10%,#fdf6ec 0%,#f6ead8 55%,#f0e0c8 100%);background-attachment:fixed;}
+.app-wrap{max-width:760px;margin:0 auto;padding:32px 20px 80px;}
+.app-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;flex-wrap:wrap;gap:12px;}
+.app-header .logo{font-size:20px;}
+.app-greeting{font-size:14px;color:var(--muted);font-style:italic;margin-top:2px;}
+.app-header-right{display:flex;gap:8px;align-items:center;}
+.icon-btn{background:none;border:1px solid var(--line) !important;border-radius:999px;padding:6px 14px;font-size:12px;color:var(--muted);transition:all .15s;font-family:'Newsreader',serif;}
+.icon-btn:hover{border-color:var(--ink) !important;color:var(--ink);}
+.composer{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 14px 40px -20px rgba(120,80,30,.4);margin-bottom:24px;}
+.compose-ta{width:100%;border:none;outline:none;resize:none;background:transparent;font-family:'Fraunces',serif;font-size:20px;line-height:1.45;color:var(--ink);overflow:hidden;min-height:32px;}
+.compose-ta::placeholder{color:var(--faint);font-style:italic;}
+.compose-bottom{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line);}
+.mood-row{display:flex;flex-wrap:wrap;gap:6px;}
+.mood-chip{border:1.5px solid !important;border-radius:999px;padding:4px 12px;font-size:12px;background:transparent;color:var(--muted);transition:all .2s;text-transform:lowercase;font-family:'Newsreader',serif;}
+.compose-right{display:flex;align-items:center;gap:12px;margin-left:auto;}
+.char-count{font-size:13px;color:var(--faint);font-variant-numeric:tabular-nums;}
+.post-btn{background:var(--ink);color:var(--paper);border-radius:999px;padding:10px 20px;font-size:14px;font-family:'Fraunces',serif;font-weight:600;transition:opacity .2s;opacity:.4;pointer-events:none;}
+.post-btn.ready{opacity:1;pointer-events:auto;}
+.filter-bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px;}
+.filter-chip{border:1px solid #d8c3a3 !important;background:transparent;color:var(--muted);border-radius:999px;padding:5px 14px;font-size:13px;font-family:'Newsreader',serif;transition:all .2s;text-transform:lowercase;}
+.filter-chip.active{background:var(--ink);color:var(--paper);border-color:var(--ink) !important;}
+.manage-bar{display:none;align-items:center;gap:10px;flex-wrap:wrap;background:#fff4e6;border:1px solid #f0d2a8;border-radius:14px;padding:12px 16px;margin-bottom:18px;font-size:14px;}
+.manage-bar.show{display:flex;}
+.manage-bar .sel-count{color:var(--muted);flex:1;font-style:italic;}
+.mbar-btn{border:1px solid var(--line) !important;background:var(--paper);border-radius:999px;padding:6px 14px;font-size:12px;font-family:'Newsreader',serif;color:var(--ink);transition:all .15s;}
+.mbar-btn:hover{border-color:var(--ink) !important;}
+.mbar-btn.danger{border-color:#e0a080 !important;color:var(--red);}
+.mbar-btn.danger:hover{background:var(--red);color:#fff;border-color:var(--red) !important;}
+.mbar-btn.danger.off{opacity:.35;pointer-events:none;}
+.wall{columns:2 300px;column-gap:18px;}
+.card{break-inside:avoid;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px 18px 13px;margin-bottom:16px;position:relative;box-shadow:0 8px 28px -14px rgba(120,80,30,.45);animation:rise .5s cubic-bezier(.2,.7,.2,1) both;transition:transform .25s,box-shadow .25s,border-color .2s;}
+.card:hover{transform:translateY(-3px) rotate(-0.3deg);}
+.card:hover .card-actions{opacity:1;}
+.card.flash{box-shadow:0 0 0 3px var(--flash,var(--coral));}
+.card.selected{border-color:var(--coral) !important;box-shadow:0 0 0 2px var(--coral);transform:none !important;}
+@keyframes rise{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.card-spine{position:absolute;left:0;top:0;bottom:0;width:5px;transition:width .2s;border-radius:16px 0 0 16px;overflow:hidden;}
+.card.selected .card-spine{width:8px;}
+.card-check{display:none;position:absolute;top:12px;right:12px;width:22px;height:22px;border:2px solid var(--line);border-radius:6px;background:var(--paper);cursor:pointer;transition:all .15s;align-items:center;justify-content:center;}
+.card-check.show{display:flex;}
+.card-check.checked{background:var(--coral);border-color:var(--coral);}
+.card-check.checked::after{content:'';display:block;width:5px;height:9px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px);}
+.card-text{font-family:'Fraunces',serif;font-size:18px;line-height:1.42;margin:0 0 13px;padding-left:6px;}
+.card-edit{display:none;width:100%;border:1px solid var(--line) !important;border-radius:10px;padding:8px 10px;font-family:'Fraunces',serif;font-size:16px;line-height:1.4;color:var(--ink);background:#fdf8f0;outline:none;resize:none;margin-bottom:10px;}
+.card-edit-row{display:none;gap:8px;margin-bottom:10px;padding-left:6px;}
+.btn-save{background:var(--ink);color:var(--paper);border-radius:999px;padding:5px 14px;font-size:12px;font-family:'Newsreader',serif;}
+.btn-cancel{background:transparent;border:1px solid var(--line) !important;border-radius:999px;padding:5px 14px;font-size:12px;font-family:'Newsreader',serif;color:var(--muted);}
+.card-meta{display:flex;justify-content:space-between;align-items:center;padding-left:6px;}
+.card-left{display:flex;align-items:center;gap:8px;}
+.card-mood{font-size:11px;font-style:italic;text-transform:lowercase;}
+.card-ts{font-size:10px;color:var(--faint);}
+.card-actions{display:flex;gap:5px;opacity:0;transition:opacity .2s;}
+@media(hover:none){.card-actions{opacity:1;}}
+.act-btn{background:none;border:1px solid var(--line) !important;border-radius:999px;padding:3px 10px;font-size:10px;font-family:'Newsreader',serif;color:var(--muted);transition:all .15s;}
+.act-btn:hover{border-color:var(--coral) !important;color:var(--coral);}
+.act-btn.del:hover{border-color:var(--red) !important;color:var(--red);}
+.empty{text-align:center;padding:60px 20px;color:var(--faint);font-style:italic;font-size:18px;line-height:1.7;}
+.app-footer{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:40px;font-size:12px;color:var(--faint);font-style:italic;flex-wrap:wrap;}
+.manage-toggle{background:none;border:1px solid var(--line) !important;border-radius:999px;padding:4px 13px;font-size:11px;font-family:'Newsreader',serif;color:var(--muted);transition:all .15s;font-style:normal;}
+.manage-toggle:hover{border-color:var(--ink) !important;color:var(--ink);}
+.manage-toggle.active{background:var(--ink);color:var(--paper);border-color:var(--ink) !important;}
+
+/* MOOD EXAMPLES POPUP */
+.mood-popup{position:absolute;z-index:100;background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px -8px rgba(120,80,30,.35);padding:10px 0;min-width:260px;max-width:320px;}
+.mood-popup-header{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:6px 14px 8px;font-style:italic;}
+.mood-popup-item{padding:10px 14px;font-family:'Fraunces',serif;font-size:15px;line-height:1.4;cursor:pointer;transition:background .15s;border-radius:0;}
+.mood-popup-item:hover{background:var(--cream);}
+.mood-popup-item::before{content:'&#8227; ';color:var(--faint);}
+
+/* INSIGHT */
+.insight-panel{background:var(--ink);color:var(--cream);border-radius:18px;padding:28px 24px;margin-bottom:24px;position:relative;overflow:hidden;}
+.insight-panel::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle, rgba(231,111,81,.25) 0%, transparent 70%);pointer-events:none;}
+.i-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--coral);margin-bottom:10px;font-style:italic;}
+.i-text{font-family:'Fraunces',serif;font-size:18px;line-height:1.55;margin-bottom:16px;}
+.i-suggest{font-size:14px;line-height:1.6;opacity:.8;border-left:3px solid var(--coral);padding-left:14px;margin-bottom:18px;}
+.i-loading{display:flex;align-items:center;gap:10px;font-style:italic;opacity:.7;font-size:15px;}
+.i-dot{width:7px;height:7px;border-radius:50%;background:var(--coral);animation:pulse 1.2s ease-in-out infinite;}
+.i-dot:nth-child(2){animation-delay:.2s;} .i-dot:nth-child(3){animation-delay:.4s;}
+@keyframes pulse{0%,100%{opacity:.3;transform:scale(.8);}50%{opacity:1;transform:scale(1.2);}}
+.i-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.i-btn{border:1px solid rgba(255,255,255,.25) !important;background:transparent;color:var(--cream);border-radius:999px;padding:7px 16px;font-size:12px;font-family:'Newsreader',serif;transition:all .2s;}
+.i-btn:hover{background:rgba(255,255,255,.1);}
+.i-unlock{text-align:center;padding:4px 0 2px;}
+.i-unlock p{font-size:13px;opacity:.65;font-style:italic;}
+.i-progress{height:4px;background:rgba(255,255,255,.15);border-radius:999px;margin:10px 0 6px;overflow:hidden;}
+.i-fill{height:100%;background:var(--coral);border-radius:999px;transition:width .4s;}
+.i-prog-label{font-size:11px;opacity:.5;}
+</style>
 </head>
 <body>
-<h2>Button Test</h2>
-<button id="btn1" onclick="alert('inline onclick works')">Test 1: inline onclick</button>
-<br><br>
-<button id="btn2">Test 2: addEventListener</button>
-<br><br>
-<div id="result" style="padding:20px;background:#eee;margin-top:20px;">Tap a button</div>
+
+<!-- LANDING -->
+<div id="landing" class="screen active">
+  <div class="land-wrap">
+    <nav class="land-nav">
+      <span class="logo"><span class="logo-H">H</span><span class="logo-appy">appy</span></span>
+      <button class="land-nav-cta" id="navCta">Get started &rarr;</button>
+    </nav>
+    <div class="hero">
+      <div class="hero-text">
+        <div class="hero-eyebrow">Your personal happiness journal</div>
+        <h1 class="hero-h1">Small moments.<br><em>Big joy.</em></h1>
+        <p class="hero-p">Life moves fast and the good bits slip away. Happy is a private wall where you catch them &mdash; a quick note, a tiny win, a moment that made you smile &mdash; and keep them close.</p>
+        <div class="hero-actions">
+          <button class="btn-primary" id="heroCta">Get started &rarr;</button>
+          <span class="hero-note">Free. Private. Yours alone.</span>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="float-card fc1">
+          <div class="fc-spine" style="background:#8AB17D"></div>
+          &ldquo;First coffee of the day, still warm, nobody needing anything from me yet.&rdquo;
+          <div class="fc-mood">calm &middot; today 07:14</div>
+        </div>
+        <div class="float-card fc2">
+          <div class="fc-spine" style="background:#E76F51"></div>
+          &ldquo;My grandmother called just to tell me a joke. I laughed for ten minutes.&rdquo;
+          <div class="fc-mood">loved &middot; yesterday 19:03</div>
+        </div>
+        <div class="float-card fc3">
+          <div class="fc-spine" style="background:#E9C46A"></div>
+          &ldquo;Got the promotion. Told my mum first. She screamed louder than me.&rdquo;
+          <div class="fc-mood">proud &middot; 12 May 11:30</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="land-wrap">
+    <section class="why">
+      <div class="section-label">Why it matters</div>
+      <h2 class="why-h2">Positivity isn&rsquo;t a luxury. It&rsquo;s how you keep going.</h2>
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="why-icon">&#127775;</div>
+          <h3>Rewire your brain</h3>
+          <p>Writing down positive moments trains your mind to notice more of them. Gratitude journalling is one of the most evidence-backed wellbeing habits.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">&#129504;</div>
+          <h3>Fight the negativity bias</h3>
+          <p>Your brain is wired to remember bad things more vividly. Happy tilts the scales back &mdash; a record of good that your future self can actually read.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">&#127807;</div>
+          <h3>Small things compound</h3>
+          <p>A parking spot. A kind stranger. A warm cup. These feel trivial in the moment but accumulated, they reveal a life richer than you realised.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="privacy-band">
+    <h2>Your words stay with you.</h2>
+    <p>Happy stores everything on your device, in your browser. No servers hold your thoughts. No accounts track you. No ads monetise your moments. What you write is yours &mdash; completely, permanently, unconditionally.</p>
+    <div class="privacy-items">
+      <span class="privacy-item">No account required</span>
+      <span class="privacy-item">No data sent to any server</span>
+      <span class="privacy-item">No ads, ever</span>
+      <span class="privacy-item">Delete anytime, instantly</span>
+    </div>
+  </div>
+  <div class="final-cta">
+    <h2>Ready to start<br><em>noticing the good?</em></h2>
+    <p>Takes 30 seconds to set up. Your first happy moment is waiting to be written.</p>
+    <button class="btn-primary" id="finalCta">Get started &rarr;</button>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div id="onboarding" class="screen">
+  <div class="onboard-box">
+    <span class="logo onboard-box"><span class="logo-H">H</span><span class="logo-appy">appy</span></span>
+    <h2 class="onboard-h">What should we call you?</h2>
+    <p class="onboard-sub">Just a nickname is fine. This is how Happy will greet you &mdash; no account, no email, no fuss.</p>
+    <input class="name-input" id="nameInput" type="text" maxlength="30" placeholder="e.g. Sam, Sunshine, Boss..."/>
+    <div class="onboard-hint">Only stored on this device. Never shared.</div>
+    <button class="onboard-btn" id="nameBtn">Let&rsquo;s go &rarr;</button>
+    <div class="onboard-privacy">Your messages are stored on this device only. Not on any server. Not visible to anyone but you.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="screen">
+  <div class="app-wrap">
+    <div class="app-header">
+      <div>
+        <span class="logo app-logo"><span class="logo-H">H</span><span class="logo-appy">appy</span></span>
+        <div class="app-greeting" id="greeting"></div>
+      </div>
+      <div class="app-header-right">
+        <button class="icon-btn" id="homeToggle">Home</button>
+        <button class="icon-btn" id="exportBtn">Export</button>
+        <button class="icon-btn" id="importBtn">Import</button>
+      </div>
+    </div>
+
+    <div id="insightPanel"></div>
+    <div id="insightTrigger" style="display:none;margin-bottom:20px;">
+      <button id="insightBtn" style="width:100%;background:#1e1510;color:#f6ead8;border:none;border-radius:14px;padding:16px;font-family:'Fraunces',serif;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">&#10024; Get my happiness insight</button>
+    </div>
+
+    <div class="composer">
+      <textarea class="compose-ta" id="text" rows="1" maxlength="240" placeholder="Something small. Something true."></textarea>
+      <div class="compose-bottom">
+        <div class="mood-row" id="moodRow"></div>
+        <div class="compose-right">
+          <span class="char-count" id="count">240</span>
+          <button class="post-btn" id="postBtn">Add &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-bar" id="filterBar"></div>
+    <div class="manage-bar" id="manageBar">
+      <span class="sel-count" id="selCount">Tap a moment to select</span>
+      <button class="mbar-btn" id="selAllBtn">Select all</button>
+      <button class="mbar-btn danger off" id="delSelBtn">Delete selected</button>
+      <button class="mbar-btn" id="cancelManageBtn">Done</button>
+    </div>
+    <div class="wall" id="wall"></div>
+    <div class="app-footer" id="appFooter"></div>
+  </div>
+</div>
+
 <script>
-document.getElementById('btn2').addEventListener('click', function(){
-  document.getElementById('result').textContent = 'addEventListener works! Time: ' + new Date().toLocaleTimeString();
-});
-window.onerror = function(msg, src, line){
-  document.getElementById('result').textContent = 'JS ERROR: ' + msg + ' line ' + line;
+// Global error catcher - shows any JS error on screen
+window.onerror = function(msg, src, line, col, err){
+  var div = document.createElement('div');
+  div.style.cssText = 'position:fixed;top:0;left:0;right:0;background:red;color:white;padding:16px;font-size:14px;z-index:9999;word-break:break-all;';
+  div.textContent = 'JS ERROR line ' + line + ': ' + msg;
+  document.body.appendChild(div);
   return true;
 };
+
+// ==================== CONSTANTS ====================
+var SK = 'happy.posts.v2';
+var UK = 'happy.user.v1';
+var MOODS = [
+  {key:'calm', color:'#8AB17D', examples:[
+    'First coffee of the day, still warm.',
+    'Rain on the window, nowhere to be.',
+    'A quiet morning before everyone woke up.',
+    'Finished work early and just sat in silence.',
+    'A long walk with no destination.'
+  ]},
+  {key:'loved', color:'#E76F51', examples:[
+    'Someone texted just to check on me.',
+    'A hug that lasted longer than usual.',
+    'My family had dinner together, no phones.',
+    'An old friend remembered my favourite song.',
+    'Someone saved me the last piece.'
+  ]},
+  {key:'delighted', color:'#F4A259', examples:[
+    'Found money in an old jacket pocket.',
+    'The dog did something ridiculous and I laughed.',
+    'Got a window seat on the train.',
+    'A stranger complimented something small.',
+    'The food was even better than expected.'
+  ]},
+  {key:'proud', color:'#E9C46A', examples:[
+    'Finished something I kept putting off.',
+    'Said no when I usually say yes.',
+    'Showed up even though I didn't feel like it.',
+    'Got feedback that genuinely surprised me.',
+    'Did something hard and did it well.'
+  ]},
+  {key:'moved', color:'#5B8E7D', examples:[
+    'A song came on that took me somewhere else.',
+    'Read something that stopped me mid-page.',
+    'Watched someone be quietly kind to a stranger.',
+    'A moment so perfect I didn't want it to end.',
+    'Something small reminded me what matters.'
+  ]},
+  {key:'lucky', color:'#F4A259', examples:[
+    'Caught the bus just as the doors were closing.',
+    'Found a parking spot right outside.',
+    'The queue disappeared right as I walked up.',
+    'Got exactly what I needed at the right moment.',
+    'Something that could have gone wrong, didn't.'
+  ]},
+];
+
+// ==================== STATE ====================
+var activeMood   = MOODS[0];
+var activeFilter = null;
+var flashId      = null;
+var manageMode   = false;
+var selected     = {};
+var insightCache = null;
+
+function el(id){
+  var elem = document.getElementById(id);
+  if(!elem) console.error('Happy: element not found: #' + id + ' &mdash; check HTML/JS sync');
+  return elem;
+}
+function safeOn(id, evt, fn){
+  var elem = el(id);
+  if(elem) elem.addEventListener(evt, fn);
+}
+
+// ==================== STORAGE ====================
+function loadUser(){
+  try{ var r=localStorage.getItem(UK); return r?JSON.parse(r):null; }catch(e){ return null; }
+}
+function saveUser(u){
+  try{ localStorage.setItem(UK,JSON.stringify(u)); }catch(e){}
+}
+function loadPosts(){
+  try{ var r=localStorage.getItem(SK); return r?JSON.parse(r):[]; }catch(e){ return []; }
+}
+function savePosts(p){
+  try{ localStorage.setItem(SK,JSON.stringify(p)); }catch(e){}
+}
+
+// ==================== DATE TIME ====================
+function updateDateTime(){
+  var dtEl = el('greeting');
+  if(!dtEl) return;
+  var user = loadUser();
+  if(!user || !user.name) return;
+  var now = new Date();
+  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var pad = function(n){ return String(n).padStart(2,'0'); };
+  var dayName = days[now.getDay()];
+  var date = dayName + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+  var time = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+  dtEl.textContent = 'Welcome back, ' + user.name + '  &middot;  ' + date + '  ' + time;
+}
+// Update clock every second
+setInterval(function(){ updateDateTime(); }, 1000);
+
+// ==================== ROUTING ====================
+function showScreen(id){
+  var screens = ['landing','onboarding','app'];
+  for(var i=0;i<screens.length;i++){
+    var s = el(screens[i]);
+    s.className = 'screen' + (screens[i]===id ? ' active' : '');
+  }
+}
+
+function goLanding(){ showScreen('landing'); }
+
+function goOnboard(){
+  var user = loadUser();
+  if(user && user.name){ showApp(); return; }
+  showScreen('onboarding');
+  setTimeout(function(){ el('nameInput').focus(); }, 250);
+}
+
+function finishOnboard(){
+  var name = el('nameInput').value.trim();
+  if(!name) return;
+  var user = loadUser() || {};
+  user.name = name;
+  if(user.skipLanding === undefined) user.skipLanding = false;
+  saveUser(user);
+  showApp();
+}
+
+function showApp(){
+  showScreen('app');
+  var user = loadUser();
+  if(user && user.name){
+    el('greeting').textContent = 'Welcome back, ' + user.name + '.';
+    updateDateTime();
+    syncHomeToggle(user);
+  }
+  renderMoods();
+  render();
+}
+
+function syncHomeToggle(user){
+  var btn = el('homeToggle');
+  btn.textContent = user.skipLanding ? 'Show home' : 'Skip home';
+}
+
+// ==================== BOOT ====================
+(function(){
+  var user = loadUser();
+  if(!user || !user.name){
+    showScreen('landing');
+  } else if(user.skipLanding){
+    showApp();
+  } else {
+    showScreen('landing');
+  }
+})();
+
+// ==================== LANDING BUTTONS ====================
+el('navCta').addEventListener('click',  function(){ goOnboard(); });
+el('heroCta').addEventListener('click', function(){ goOnboard(); });
+el('finalCta').addEventListener('click',function(){ goOnboard(); });
+
+// ==================== ONBOARDING ====================
+el('nameInput').addEventListener('input', function(){
+  var hasText = el('nameInput').value.trim().length > 0;
+  var btn = el('nameBtn');
+  if(hasText){ btn.classList.add('ready'); }
+  else { btn.classList.remove('ready'); }
+});
+el('nameInput').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){ finishOnboard(); }
+});
+el('nameBtn').addEventListener('click', function(){
+  finishOnboard();
+});
+
+// ==================== APP BUTTONS ====================
+el('homeToggle').addEventListener('click', function(){
+  var user = loadUser() || {};
+  user.skipLanding = !user.skipLanding;
+  saveUser(user);
+  syncHomeToggle(user);
+});
+// homeToggle handles navigation to landing
+el('exportBtn').addEventListener('click', function(){
+  var posts = loadPosts();
+  if(posts.length === 0){ alert('No moments to export yet.'); return; }
+  var data = JSON.stringify({version:1, exported: new Date().toISOString(), posts: posts});
+  var blob = new Blob([data], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'happy-moments.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+});
+el('importBtn').addEventListener('click', function(){
+  var input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = function(e){
+    var file = e.target.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      try{
+        var data = JSON.parse(ev.target.result);
+        var incoming = data.posts || data;
+        if(!Array.isArray(incoming)) throw new Error('Invalid file');
+        var existing = loadPosts();
+        var existingIds = {};
+        existing.forEach(function(p){ existingIds[p.id]=true; });
+        var added = incoming.filter(function(p){ return !existingIds[p.id]; });
+        savePosts(existing.concat(added));
+        insightCache = null; render();
+        alert('Imported ' + added.length + ' new moments.');
+      } catch(err){ alert('Could not read file. Make sure it was exported from Happy.'); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+});
+
+el('selAllBtn').addEventListener('click', function(){
+  var posts = loadPosts().sort(function(a,b){ return b.ts-a.ts; });
+  var visible = activeFilter ? posts.filter(function(p){ return p.mood===activeFilter; }) : posts;
+  var vids = visible.map(function(p){ return p.id; });
+  var allSel = vids.every(function(id){ return selected[id]; });
+  if(allSel){ vids.forEach(function(id){ delete selected[id]; }); }
+  else { vids.forEach(function(id){ selected[id]=true; }); }
+  render();
+});
+el('delSelBtn').addEventListener('click', function(){
+  var n = Object.keys(selected).length;
+  if(n===0) return;
+  if(!confirm('Delete ' + n + ' selected moment' + (n!==1?'s':'') + '? This cannot be undone.')) return;
+  savePosts(loadPosts().filter(function(p){ return !selected[p.id]; }));
+  selected = {}; manageMode = false; insightCache = null; render();
+});
+el('cancelManageBtn').addEventListener('click', function(){
+  manageMode = false; selected = {}; render();
+});
+
+// ==================== TIMESTAMP ====================
+function fmtDate(ts){
+  var d = new Date(ts);
+  var pad = function(n){ return String(n).padStart(2,'0'); };
+  var t = pad(d.getHours())+':'+pad(d.getMinutes());
+  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var today=new Date(); today.setHours(0,0,0,0);
+  var dDay=new Date(ts); dDay.setHours(0,0,0,0);
+  if(dDay.getTime()===today.getTime()) return 'today '+t;
+  var yest=new Date(today); yest.setDate(today.getDate()-1);
+  if(dDay.getTime()===yest.getTime()) return 'yesterday '+t;
+  var sameYear=d.getFullYear()===new Date().getFullYear();
+  return d.getDate()+' '+months[d.getMonth()]+(sameYear?'':' '+d.getFullYear())+' '+t;
+}
+
+// ==================== MOODS ====================
+var openPopup = null;
+
+function closePopup(){
+  if(openPopup && openPopup.parentNode){ openPopup.parentNode.removeChild(openPopup); }
+  openPopup = null;
+}
+
+function showMoodPopup(m, anchorBtn){
+  closePopup();
+  var popup = document.createElement('div');
+  popup.className = 'mood-popup';
+  var header = document.createElement('div');
+  header.className = 'mood-popup-header';
+  header.textContent = m.key + ' moments';
+  popup.appendChild(header);
+  m.examples.forEach(function(ex){
+    var item = document.createElement('div');
+    item.className = 'mood-popup-item';
+    item.textContent = ex;
+    item.addEventListener('click', function(){
+      var ta = el('text');
+      ta.value = ex;
+      activeMood = m;
+      renderMoods();
+      updateCount();
+      closePopup();
+      ta.focus();
+    });
+    popup.appendChild(item);
+  });
+  // Position relative to composer
+  var composer = document.querySelector('.composer');
+  composer.style.position = 'relative';
+  var btnRect = anchorBtn.getBoundingClientRect();
+  var compRect = composer.getBoundingClientRect();
+  popup.style.top = (btnRect.bottom - compRect.top + 6) + 'px';
+  popup.style.left = Math.max(0, (btnRect.left - compRect.left)) + 'px';
+  composer.appendChild(popup);
+  openPopup = popup;
+  // Close on outside click
+  setTimeout(function(){
+    document.addEventListener('click', function handler(e){
+      if(!popup.contains(e.target)){ closePopup(); document.removeEventListener('click', handler); }
+    });
+  }, 10);
+}
+
+function renderMoods(){
+  var row = el('moodRow'); row.innerHTML='';
+  MOODS.forEach(function(m){
+    var b = document.createElement('button');
+    b.className='mood-chip'; b.textContent=m.key + ' &#9662;';
+    b.style.borderColor=m.color;
+    if(activeMood.key===m.key){ b.style.background=m.color; b.style.color='#1a1410'; }
+    b.addEventListener('click', function(e){
+      e.stopPropagation();
+      if(activeMood.key===m.key){
+        // Already selected &mdash; show examples popup
+        showMoodPopup(m, b);
+      } else {
+        // First click &mdash; just select the mood
+        activeMood=m; renderMoods();
+      }
+    });
+    row.appendChild(b);
+  });
+}
+
+// ==================== FILTERS ====================
+function renderFilters(posts){
+  var bar=el('filterBar'); bar.innerHTML='';
+  var used=[]; var seen={};
+  posts.forEach(function(p){ if(!seen[p.mood]){ used.push(p.mood); seen[p.mood]=true; } });
+  if(used.length<2) return;
+  function mk(label,key){
+    var b=document.createElement('button');
+    b.className='filter-chip'+(activeFilter===key?' active':'');
+    b.textContent=label;
+    if(activeFilter===key&&key){
+      var m=MOODS.filter(function(x){ return x.key===key; })[0];
+      if(m){ b.style.background=m.color; b.style.borderColor=m.color; b.style.color='#1a1410'; }
+    }
+    b.addEventListener('click', function(){ activeFilter=activeFilter===key?null:key; render(); });
+    return b;
+  }
+  bar.appendChild(mk('all',null));
+  used.forEach(function(k){ bar.appendChild(mk(k,k)); });
+}
+
+// ==================== INSIGHT ====================
+function renderInsight(posts){
+  var panel=el('insightPanel'); panel.innerHTML='';
+  if(posts.length===0) return;
+  if(posts.length<7){
+    var need=7-posts.length;
+    var pct=Math.round((posts.length/7)*100);
+    panel.innerHTML=
+      '<div class="insight-panel">'+
+        '<div class="i-label">Your happiness insights</div>'+
+        '<div class="i-unlock">'+
+          '<p>Add '+need+' more moment'+(need!==1?'s':'')+' to unlock your personalised positivity reading.</p>'+
+          '<div class="i-progress"><div class="i-fill" style="width:'+pct+'%"></div></div>'+
+          '<div class="i-prog-label">'+posts.length+' of 7 moments</div>'+
+        '</div>'+
+      '</div>';
+    return;
+  }
+  if(insightCache){ renderInsightContent(insightCache); return; }
+  panel.innerHTML=
+    '<div class="insight-panel">'+
+      '<div class="i-label">Your happiness insights</div>'+
+      '<div class="i-loading"><div class="i-dot"></div><div class="i-dot"></div><div class="i-dot"></div>&nbsp;Reading your moments&hellip;</div>'+
+    '</div>';
+  fetchInsight(posts);
+}
+
+function fetchInsight(posts){
+  var user=loadUser();
+  var name=user&&user.name?user.name:'you';
+  var recent=posts.slice(0,20);
+  var summary=recent.map(function(p){ return '['+p.mood+'] '+p.text; }).join('\n');
+  var WORKER_URL = 'https://happy.cslcs-gen.workers.dev';
+  var APP_TOKEN  = 'happy-app-2026-cslcs';
+  fetch(WORKER_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','X-Happy-Token':APP_TOKEN},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:400,
+      system:'You are a warm, perceptive wellbeing coach. Read the user\'s happy moments and respond ONLY with a JSON object (no markdown, no preamble) with keys: "pattern" (one warm sentence about what makes them happy, be specific to their moments), "suggestion" (one gentle, concrete positive activity for today based on their patterns, 1-2 sentences).',
+      messages:[{role:'user',content:'My name is '+name+'. My recent happy moments:\n\n'+summary}]
+    })
+  })
+  .then(function(res){ return res.json(); })
+  .then(function(data){
+    var text=data.content&&data.content[0]&&data.content[0].text;
+    if(!text) throw new Error('No response');
+    var clean=text.replace(/```json|```/g,'').trim();
+    var parsed=JSON.parse(clean);
+    insightCache=parsed;
+    renderInsightContent(parsed);
+  })
+  .catch(function(err){
+    var msg = err && err.message ? err.message : 'Network error';
+    el('insightPanel').innerHTML=
+      '<div class="insight-panel">'+
+        '<div class="i-label">Your happiness insights</div>'+
+        '<div class="i-text" style="font-size:15px;opacity:.7;">Could not load insights right now. Keep adding moments &mdash; your patterns are building.</div>'+
+        '<div class="i-actions"><button class="i-btn" onclick="insightCache=null;render()">Try again</button></div>'+
+      '</div>';
+  });
+}
+
+function renderInsightContent(d){
+  var panel=el('insightPanel');
+  var div=document.createElement('div');
+  div.className='insight-panel';
+  var label=document.createElement('div'); label.className='i-label'; label.textContent='Your happiness insights';
+  var txt=document.createElement('div'); txt.className='i-text'; txt.textContent=d.pattern;
+  var sug=document.createElement('div'); sug.className='i-suggest'; sug.textContent=d.suggestion;
+  var acts=document.createElement('div'); acts.className='i-actions';
+  var refBtn=document.createElement('button'); refBtn.className='i-btn'; refBtn.textContent='Refresh';
+  refBtn.addEventListener('click',function(){ insightCache=null; render(); });
+  acts.appendChild(refBtn);
+  div.appendChild(label); div.appendChild(txt); div.appendChild(sug); div.appendChild(acts);
+  panel.innerHTML=''; panel.appendChild(div);
+}
+
+// ==================== MANAGE BAR ====================
+function updateManageBar(visibleIds){
+  var n=Object.keys(selected).length;
+  el('selCount').textContent=n===0?'Tap a moment to select':n+' selected';
+  var delBtn=el('delSelBtn');
+  if(n===0){ delBtn.classList.add('off'); }
+  else { delBtn.classList.remove('off'); }
+  var allSel=visibleIds.length>0&&visibleIds.every(function(id){ return selected[id]; });
+  el('selAllBtn').textContent=allSel?'Deselect all':'Select all';
+}
+
+// ==================== RENDER ====================
+function render(){
+  var all=loadPosts().sort(function(a,b){ return b.ts-a.ts; });
+  var visible=activeFilter?all.filter(function(p){ return p.mood===activeFilter; }):all;
+  renderFilters(all);
+  renderInsight(all);
+  el('manageBar').className='manage-bar'+(manageMode?' show':'');
+  var wall=el('wall'); wall.innerHTML='';
+
+  if(all.length===0){
+    wall.innerHTML='<div class="empty">Your wall is empty.<br>What made you smile today?</div>';
+    el('appFooter').innerHTML=''; return;
+  }
+
+  var visibleIds=visible.map(function(p){ return p.id; });
+
+  visible.forEach(function(p,i){
+    var card=document.createElement('article');
+    var isSel=!!selected[p.id];
+    card.className='card'+(flashId===p.id?' flash':'')+(isSel?' selected':'');
+    card.style.animationDelay=Math.min(i*0.04,0.4)+'s';
+    card.style.setProperty('--flash',p.color);
+
+    var spine=document.createElement('div');
+    spine.className='card-spine'; spine.style.background=p.color;
+
+    var chk=document.createElement('div');
+    chk.className='card-check'+(manageMode?' show':'')+(isSel?' checked':'');
+    chk.addEventListener('click',function(){ toggleSelect(p.id,visibleIds); });
+
+    var ct=document.createElement('p');
+    ct.className='card-text'; ct.textContent=p.text;
+
+    var editTA=document.createElement('textarea');
+    editTA.className='card-edit'; editTA.value=p.text; editTA.rows=2; editTA.maxLength=240;
+
+    var eRow=document.createElement('div'); eRow.className='card-edit-row';
+    var svBtn=document.createElement('button'); svBtn.className='btn-save'; svBtn.textContent='Save';
+    var cnBtn=document.createElement('button'); cnBtn.className='btn-cancel'; cnBtn.textContent='Cancel';
+    eRow.appendChild(svBtn); eRow.appendChild(cnBtn);
+
+    var meta=document.createElement('div'); meta.className='card-meta';
+    var left=document.createElement('div'); left.className='card-left';
+    var moodSp=document.createElement('span'); moodSp.className='card-mood'; moodSp.style.color=p.color; moodSp.textContent=p.mood;
+    var tsSp=document.createElement('span'); tsSp.className='card-ts'; tsSp.textContent=fmtDate(p.ts);
+    left.appendChild(moodSp); left.appendChild(tsSp);
+
+    var actD=document.createElement('div'); actD.className='card-actions';
+    if(manageMode) actD.style.display='none';
+    var edBtn=document.createElement('button'); edBtn.className='act-btn'; edBtn.textContent='edit';
+    var dlBtn=document.createElement('button'); dlBtn.className='act-btn del'; dlBtn.textContent='delete';
+    actD.appendChild(edBtn); actD.appendChild(dlBtn);
+
+    meta.appendChild(left); meta.appendChild(actD);
+    card.appendChild(spine); card.appendChild(chk); card.appendChild(ct);
+    card.appendChild(editTA); card.appendChild(eRow); card.appendChild(meta);
+    wall.appendChild(card);
+
+    if(manageMode){
+      ct.style.cursor='pointer';
+      ct.addEventListener('click',function(){ toggleSelect(p.id,visibleIds); });
+    }
+
+    // Edit
+    edBtn.addEventListener('click',function(){
+      if(editTA.style.display==='block'){ exitEdit(); return; }
+      ct.style.display='none'; editTA.style.display='block'; eRow.style.display='flex';
+      edBtn.textContent='cancel'; editTA.focus();
+      editTA.style.height='auto'; editTA.style.height=editTA.scrollHeight+'px';
+    });
+    function exitEdit(){
+      ct.style.display=''; editTA.style.display='none'; eRow.style.display='none';
+      edBtn.textContent='edit'; editTA.value=p.text;
+    }
+    cnBtn.addEventListener('click', exitEdit);
+    svBtn.addEventListener('click',function(){
+      var nt=editTA.value.trim(); if(!nt) return;
+      var posts=loadPosts(); var idx=-1;
+      for(var j=0;j<posts.length;j++){ if(posts[j].id===p.id){ idx=j; break; } }
+      if(idx>-1){ posts[idx].text=nt; savePosts(posts); insightCache=null; }
+      render();
+    });
+    dlBtn.addEventListener('click',function(){
+      if(!confirm('Delete this moment?')) return;
+      savePosts(loadPosts().filter(function(x){ return x.id!==p.id; }));
+      insightCache=null; render();
+    });
+  });
+
+  updateManageBar(visibleIds);
+  renderFooter(all.length,visible.length);
+}
+
+function toggleSelect(id,visibleIds){
+  if(selected[id]) delete selected[id]; else selected[id]=true;
+  updateManageBar(visibleIds);
+  render();
+}
+
+function renderFooter(total,showing){
+  var f=el('appFooter'); f.innerHTML='';
+  var info=document.createElement('span');
+  info.textContent=total+' moment'+(total!==1?'s':'')+(showing!==total?', '+showing+' showing':'')+' - saved on this device';
+  f.appendChild(info);
+  var btn=document.createElement('button');
+  btn.className='manage-toggle'+(manageMode?' active':'');
+  btn.textContent=manageMode?'Exit manage':'Manage';
+  btn.addEventListener('click',function(){
+    manageMode=!manageMode; if(!manageMode) selected={}; render();
+  });
+  f.appendChild(btn);
+}
+
+// ==================== SUBMIT ====================
+function updateCount(){
+  var ta=el('text');
+  el('count').textContent=240-ta.value.length;
+  var btn=el('postBtn');
+  if(ta.value.trim()){ btn.classList.add('ready'); } else { btn.classList.remove('ready'); }
+  ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px';
+}
+
+el('text').addEventListener('input', updateCount);
+el('text').addEventListener('keydown', function(e){
+  if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){ submit(); }
+});
+el('postBtn').addEventListener('click', function(){ submit(); });
+el('insightBtn').addEventListener('click', function(){ triggerInsight(); });
+
+function submit(){
+  var ta=el('text'); var t=ta.value.trim(); if(!t) return;
+  var post={id:'u'+Date.now(),text:t,mood:activeMood.key,color:activeMood.color,ts:Date.now()};
+  savePosts([post].concat(loadPosts()));
+  ta.value=''; flashId=post.id; manageMode=false; selected={}; insightCache=null;
+  updateCount(); render();
+  setTimeout(function(){ flashId=null; render(); }, 1400);
+}
 </script>
 </body>
 </html>
