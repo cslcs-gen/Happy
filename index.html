@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://happy.cslcs-gen.workers.dev; frame-ancestors 'none';">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Happy - your personal wall of good moments</title>
 <meta name="description" content="A private wall of happy moments. Yours alone. No accounts, no tracking, no ads."/>
@@ -292,12 +295,16 @@ button{cursor:pointer;font-family:inherit;border:none;}
         <div class="app-greeting" id="greeting"></div>
       </div>
       <div class="app-header-right">
-        <button class="icon-btn" id="homeToggle">Skip home</button>
-        <button class="icon-btn" id="aboutBtn">About</button>
+        <button class="icon-btn" id="homeToggle">Home</button>
+        <button class="icon-btn" id="exportBtn">Export</button>
+        <button class="icon-btn" id="importBtn">Import</button>
       </div>
     </div>
 
     <div id="insightPanel"></div>
+    <div id="insightTrigger" style="display:none;margin-bottom:20px;">
+      <button id="insightBtn" style="width:100%;background:#1e1510;color:#f6ead8;border:none;border-radius:14px;padding:16px;font-family:'Fraunces',serif;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">&#10024; Get my happiness insight</button>
+    </div>
 
     <div class="composer">
       <textarea class="compose-ta" id="text" rows="1" maxlength="240" placeholder="Something small. Something true."></textarea>
@@ -381,7 +388,7 @@ var insightCache = null;
 
 function el(id){
   var elem = document.getElementById(id);
-  if(!elem) console.error('Happy: element not found: #' + id + ' â check HTML/JS sync');
+  if(!elem) console.error('Happy: element not found: #' + id + ' &mdash; check HTML/JS sync');
   return elem;
 }
 function safeOn(id, evt, fn){
@@ -505,6 +512,41 @@ el('homeToggle').addEventListener('click', function(){
   syncHomeToggle(user);
 });
 // homeToggle handles navigation to landing
+el('exportBtn').addEventListener('click', function(){
+  var posts = loadPosts();
+  if(posts.length === 0){ alert('No moments to export yet.'); return; }
+  var data = JSON.stringify({version:1, exported: new Date().toISOString(), posts: posts});
+  var blob = new Blob([data], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'happy-moments.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+});
+el('importBtn').addEventListener('click', function(){
+  var input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = function(e){
+    var file = e.target.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      try{
+        var data = JSON.parse(ev.target.result);
+        var incoming = data.posts || data;
+        if(!Array.isArray(incoming)) throw new Error('Invalid file');
+        var existing = loadPosts();
+        var existingIds = {};
+        existing.forEach(function(p){ existingIds[p.id]=true; });
+        var added = incoming.filter(function(p){ return !existingIds[p.id]; });
+        savePosts(existing.concat(added));
+        insightCache = null; render();
+        alert('Imported ' + added.length + ' new moments.');
+      } catch(err){ alert('Could not read file. Make sure it was exported from Happy.'); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+});
 
 el('selAllBtn').addEventListener('click', function(){
   var posts = loadPosts().sort(function(a,b){ return b.ts-a.ts; });
@@ -663,10 +705,11 @@ function fetchInsight(posts){
   var name=user&&user.name?user.name:'you';
   var recent=posts.slice(0,20);
   var summary=recent.map(function(p){ return '['+p.mood+'] '+p.text; }).join('\n');
-  var WORKER_URL = 'PASTE_YOUR_WORKER_URL_HERE';
+  var WORKER_URL = 'https://happy.cslcs-gen.workers.dev';
+  var APP_TOKEN  = 'happy-app-2026-cslcs';
   fetch(WORKER_URL,{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:{'Content-Type':'application/json','X-Happy-Token':APP_TOKEN},
     body:JSON.stringify({
       model:'claude-sonnet-4-20250514',
       max_tokens:400,
@@ -847,6 +890,7 @@ el('text').addEventListener('keydown', function(e){
   if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){ submit(); }
 });
 el('postBtn').addEventListener('click', function(){ submit(); });
+el('insightBtn').addEventListener('click', function(){ triggerInsight(); });
 
 function submit(){
   var ta=el('text'); var t=ta.value.trim(); if(!t) return;
