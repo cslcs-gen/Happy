@@ -61,6 +61,14 @@ button{cursor:pointer;font-family:inherit;}
 .add-btn{background:#1e1510;color:#f6ead8;border:none;border-radius:999px;padding:9px 18px;font-size:13px;font-family:'Fraunces',serif;font-weight:600;opacity:.4;}
 .add-btn.on{opacity:1;}
 
+/* MOOD POPUP */
+.mood-popup{background:#fffdf8;border:1px solid #ead9bf;border-radius:12px;box-shadow:0 8px 24px rgba(120,80,30,.2);margin-top:8px;overflow:hidden;display:none;}
+.mood-popup.open{display:block;}
+.mood-popup-hdr{font-size:10px;color:#b8ab9b;padding:8px 14px 4px;letter-spacing:.08em;text-transform:uppercase;}
+.mood-popup-item{padding:11px 14px;font-family:'Fraunces',serif;font-size:15px;cursor:pointer;border-top:1px solid #f0e4d0;}
+.mood-popup-item:first-of-type{border-top:none;}
+.mood-popup-item:active{background:#f6ead8;}
+
 /* WALL */
 .wall{columns:2 280px;gap:14px;}
 .card{break-inside:avoid;background:#fffdf8;border:1px solid #ead9bf;border-radius:14px;padding:16px 16px 12px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 6px 20px rgba(120,80,30,.12);}
@@ -156,6 +164,9 @@ button{cursor:pointer;font-family:inherit;}
       <textarea class="compose-ta" id="ta" rows="1" maxlength="240" placeholder="Something small. Something true."></textarea>
       <div class="compose-row">
         <div class="moods" id="moods"></div>
+        <div class="mood-popup" id="moodPopup">
+          <div class="mood-popup-hdr" id="moodPopupHdr"></div>
+        </div>
         <button class="add-btn" id="addBtn">Add &rarr;</button>
       </div>
     </div>
@@ -227,10 +238,23 @@ function goOnboard(){
   setTimeout(function(){ G('nameInput').focus(); }, 300);
 }
 
+function updateClock(){
+  var el = document.getElementById('greeting');
+  if(!el) return;
+  var appEl = document.getElementById('app');
+  if(!appEl || !appEl.className.includes('active')) return;
+  var u = loadUser(); if(!u||!u.name) return;
+  var now = new Date();
+  var days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var pad=function(n){return String(n).padStart(2,'0');};
+  el.textContent = 'Welcome back, '+u.name+' | '+days[now.getDay()]+' '+now.getDate()+' '+months[now.getMonth()]+' '+pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+}
+setInterval(updateClock, 1000);
+
 function goApp(){
   show('app');
-  var u = loadUser();
-  if(u && u.name) G('greeting').textContent = 'Welcome back, ' + u.name;
+  updateClock();
   renderMoods();
   render();
 }
@@ -290,45 +314,38 @@ G('importBtn').onclick = function(){
 };
 
 // -- Moods --
-var exPopup = null;
-function closePopup(){ if(exPopup){ document.body.removeChild(exPopup); exPopup=null; } }
+function closePopup(){
+  var p=G('moodPopup'); if(p){ p.className='mood-popup'; p.innerHTML='<div class="mood-popup-hdr" id="moodPopupHdr"></div>'; }
+}
+
 function renderMoods(){
   var row=G('moods'); row.innerHTML='';
   MOODS.forEach(function(m){
     var b=document.createElement('button');
-    b.className='mc'; b.textContent=m.key+(mood.key===m.key?'  v':'');
+    b.className='mc';
+    b.textContent=m.key;
     b.style.borderColor=m.color;
-    if(mood.key===m.key){b.style.background=m.color;b.style.color='#1a1410';}
+    if(mood.key===m.key){ b.style.background=m.color; b.style.color='#1a1410'; }
     b.onclick=function(e){
       e.stopPropagation();
       if(mood.key===m.key){
+        // Toggle popup
+        var pop=G('moodPopup');
+        if(pop.className.includes('open')){ closePopup(); return; }
         closePopup();
-        var pop=document.createElement('div');
-        pop.style.cssText='position:fixed;z-index:999;background:#fffdf8;border:1px solid #ead9bf;border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.18);padding:8px 0;min-width:220px;';
-        var rect=b.getBoundingClientRect();
-        pop.style.top=(rect.bottom+6)+'px';
-        pop.style.left=Math.max(8,rect.left)+'px';
-        var hdr=document.createElement('div');
-        hdr.style.cssText='font-size:11px;color:#b8ab9b;padding:6px 14px;letter-spacing:.08em;text-transform:uppercase;';
-        hdr.textContent=m.key+' examples';
-        pop.appendChild(hdr);
+        G('moodPopupHdr').textContent=m.key+' - tap to use';
         m.ex.forEach(function(ex){
           var item=document.createElement('div');
-          item.style.cssText='padding:10px 14px;font-family:Fraunces,serif;font-size:15px;cursor:pointer;';
+          item.className='mood-popup-item';
           item.textContent=ex;
-          item.onmouseover=function(){item.style.background='#f6ead8';};
-          item.onmouseout=function(){item.style.background='';};
           item.onclick=function(){
-            G('ta').value=ex; updateAdd(); closePopup();
-            G('ta').focus();
+            G('ta').value=ex; updateAdd(); closePopup(); G('ta').focus();
           };
           pop.appendChild(item);
         });
-        document.body.appendChild(pop); exPopup=pop;
-        setTimeout(function(){
-          document.addEventListener('click',function h(){ closePopup(); document.removeEventListener('click',h); });
-        },10);
+        pop.className='mood-popup open';
       } else {
+        closePopup();
         mood=m; renderMoods();
       }
     };
