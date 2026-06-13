@@ -2,9 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://happy.cslcs-gen.workers.dev; frame-ancestors 'none';">
-<meta http-equiv="X-Frame-Options" content="DENY">
-<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Happy - your personal wall of good moments</title>
 <meta name="description" content="A private wall of happy moments. Yours alone. No accounts, no tracking, no ads."/>
@@ -168,6 +165,13 @@ button{cursor:pointer;font-family:inherit;border:none;}
 .manage-toggle:hover{border-color:var(--ink) !important;color:var(--ink);}
 .manage-toggle.active{background:var(--ink);color:var(--paper);border-color:var(--ink) !important;}
 
+/* MOOD EXAMPLES POPUP */
+.mood-popup{position:absolute;z-index:100;background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px -8px rgba(120,80,30,.35);padding:10px 0;min-width:260px;max-width:320px;}
+.mood-popup-header{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:6px 14px 8px;font-style:italic;}
+.mood-popup-item{padding:10px 14px;font-family:'Fraunces',serif;font-size:15px;line-height:1.4;cursor:pointer;transition:background .15s;border-radius:0;}
+.mood-popup-item:hover{background:var(--cream);}
+.mood-popup-item::before{content:'&#8227; ';color:var(--faint);}
+
 /* INSIGHT */
 .insight-panel{background:var(--ink);color:var(--cream);border-radius:18px;padding:28px 24px;margin-bottom:24px;position:relative;overflow:hidden;}
 .insight-panel::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle, rgba(231,111,81,.25) 0%, transparent 70%);pointer-events:none;}
@@ -288,16 +292,12 @@ button{cursor:pointer;font-family:inherit;border:none;}
         <div class="app-greeting" id="greeting"></div>
       </div>
       <div class="app-header-right">
-        <button class="icon-btn" id="homeToggle">Home</button>
-        <button class="icon-btn" id="exportBtn">Export</button>
-        <button class="icon-btn" id="importBtn">Import</button>
+        <button class="icon-btn" id="homeToggle">Skip home</button>
+        <button class="icon-btn" id="aboutBtn">About</button>
       </div>
     </div>
 
     <div id="insightPanel"></div>
-    <div id="insightTrigger" style="display:none;margin-bottom:20px;">
-      <button id="insightBtn" style="width:100%;background:#1e1510;color:#f6ead8;border:none;border-radius:14px;padding:16px;font-family:'Fraunces',serif;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">&#10024; Get my happiness insight</button>
-    </div>
 
     <div class="composer">
       <textarea class="compose-ta" id="text" rows="1" maxlength="240" placeholder="Something small. Something true."></textarea>
@@ -327,12 +327,48 @@ button{cursor:pointer;font-family:inherit;border:none;}
 var SK = 'happy.posts.v2';
 var UK = 'happy.user.v1';
 var MOODS = [
-  {key:'calm',     color:'#8AB17D'},
-  {key:'loved',    color:'#E76F51'},
-  {key:'delighted',color:'#F4A259'},
-  {key:'proud',    color:'#E9C46A'},
-  {key:'moved',    color:'#5B8E7D'},
-  {key:'lucky',    color:'#F4A259'},
+  {key:'calm', color:'#8AB17D', examples:[
+    'First coffee of the day, still warm.',
+    'Rain on the window, nowhere to be.',
+    'A quiet morning before everyone woke up.',
+    'Finished work early and just sat in silence.',
+    'A long walk with no destination.'
+  ]},
+  {key:'loved', color:'#E76F51', examples:[
+    'Someone texted just to check on me.',
+    'A hug that lasted longer than usual.',
+    'My family had dinner together, no phones.',
+    'An old friend remembered my favourite song.',
+    'Someone saved me the last piece.'
+  ]},
+  {key:'delighted', color:'#F4A259', examples:[
+    'Found money in an old jacket pocket.',
+    'The dog did something ridiculous and I laughed.',
+    'Got a window seat on the train.',
+    'A stranger complimented something small.',
+    'The food was even better than expected.'
+  ]},
+  {key:'proud', color:'#E9C46A', examples:[
+    'Finished something I kept putting off.',
+    'Said no when I usually say yes.',
+    'Showed up even though I didn't feel like it.',
+    'Got feedback that genuinely surprised me.',
+    'Did something hard and did it well.'
+  ]},
+  {key:'moved', color:'#5B8E7D', examples:[
+    'A song came on that took me somewhere else.',
+    'Read something that stopped me mid-page.',
+    'Watched someone be quietly kind to a stranger.',
+    'A moment so perfect I didn't want it to end.',
+    'Something small reminded me what matters.'
+  ]},
+  {key:'lucky', color:'#F4A259', examples:[
+    'Caught the bus just as the doors were closing.',
+    'Found a parking spot right outside.',
+    'The queue disappeared right as I walked up.',
+    'Got exactly what I needed at the right moment.',
+    'Something that could have gone wrong, didn't.'
+  ]},
 ];
 
 // ==================== STATE ====================
@@ -358,6 +394,24 @@ function loadPosts(){
 function savePosts(p){
   try{ localStorage.setItem(SK,JSON.stringify(p)); }catch(e){}
 }
+
+// ==================== DATE TIME ====================
+function updateDateTime(){
+  var dtEl = el('greeting');
+  if(!dtEl) return;
+  var user = loadUser();
+  if(!user || !user.name) return;
+  var now = new Date();
+  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var pad = function(n){ return String(n).padStart(2,'0'); };
+  var dayName = days[now.getDay()];
+  var date = dayName + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+  var time = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+  dtEl.textContent = 'Welcome back, ' + user.name + '  &middot;  ' + date + '  ' + time;
+}
+// Update clock every second
+setInterval(function(){ updateDateTime(); }, 1000);
 
 // ==================== ROUTING ====================
 function showScreen(id){
@@ -392,21 +446,27 @@ function showApp(){
   var user = loadUser();
   if(user && user.name){
     el('greeting').textContent = 'Welcome back, ' + user.name + '.';
-    el('homeToggle').textContent = 'Home';
+    updateDateTime();
+    syncHomeToggle(user);
   }
   renderMoods();
   render();
 }
 
-
+function syncHomeToggle(user){
+  var btn = el('homeToggle');
+  btn.textContent = user.skipLanding ? 'Show home' : 'Skip home';
+}
 
 // ==================== BOOT ====================
 (function(){
   var user = loadUser();
   if(!user || !user.name){
-    showScreen('landing'); // first time visitor
+    showScreen('landing');
+  } else if(user.skipLanding){
+    showApp();
   } else {
-    showApp(); // returning user always goes straight to app
+    showScreen('landing');
   }
 })();
 
@@ -431,49 +491,12 @@ el('nameBtn').addEventListener('click', function(){
 
 // ==================== APP BUTTONS ====================
 el('homeToggle').addEventListener('click', function(){
-  goLanding();
+  var user = loadUser() || {};
+  user.skipLanding = !user.skipLanding;
+  saveUser(user);
+  syncHomeToggle(user);
 });
-// aboutBtn removed - homeToggle now handles navigation to landing
-
-el('exportBtn').addEventListener('click', function(){
-  var posts = loadPosts();
-  if(posts.length === 0){ alert('No moments to export yet.'); return; }
-  var data = JSON.stringify({version:1, exported: new Date().toISOString(), posts: posts});
-  var blob = new Blob([data], {type:'application/json'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url; a.download = 'happy-moments.json';
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a); URL.revokeObjectURL(url);
-});
-
-el('importBtn').addEventListener('click', function(){
-  var input = document.createElement('input');
-  input.type = 'file'; input.accept = '.json';
-  input.onchange = function(e){
-    var file = e.target.files[0]; if(!file) return;
-    var reader = new FileReader();
-    reader.onload = function(ev){
-      try{
-        var data = JSON.parse(ev.target.result);
-        var incoming = data.posts || data; // support both formats
-        if(!Array.isArray(incoming)) throw new Error('Invalid file');
-        var existing = loadPosts();
-        var existingIds = {};
-        existing.forEach(function(p){ existingIds[p.id]=true; });
-        var merged = existing.concat(incoming.filter(function(p){ return !existingIds[p.id]; }));
-        savePosts(merged);
-        insightCache = null;
-        render();
-        alert('Imported ' + incoming.length + ' moments. ' + (incoming.length - (merged.length - existing.length)) + ' duplicates skipped.');
-      } catch(err){
-        alert('Could not read file. Make sure it was exported from Happy.');
-      }
-    };
-    reader.readAsText(file);
-  };
-  input.click();
-});
+el('aboutBtn').addEventListener('click', function(){ goLanding(); });
 
 el('selAllBtn').addEventListener('click', function(){
   var posts = loadPosts().sort(function(a,b){ return b.ts-a.ts; });
@@ -511,14 +534,70 @@ function fmtDate(ts){
 }
 
 // ==================== MOODS ====================
+var openPopup = null;
+
+function closePopup(){
+  if(openPopup && openPopup.parentNode){ openPopup.parentNode.removeChild(openPopup); }
+  openPopup = null;
+}
+
+function showMoodPopup(m, anchorBtn){
+  closePopup();
+  var popup = document.createElement('div');
+  popup.className = 'mood-popup';
+  var header = document.createElement('div');
+  header.className = 'mood-popup-header';
+  header.textContent = m.key + ' moments';
+  popup.appendChild(header);
+  m.examples.forEach(function(ex){
+    var item = document.createElement('div');
+    item.className = 'mood-popup-item';
+    item.textContent = ex;
+    item.addEventListener('click', function(){
+      var ta = el('text');
+      ta.value = ex;
+      activeMood = m;
+      renderMoods();
+      updateCount();
+      closePopup();
+      ta.focus();
+    });
+    popup.appendChild(item);
+  });
+  // Position relative to composer
+  var composer = document.querySelector('.composer');
+  composer.style.position = 'relative';
+  var btnRect = anchorBtn.getBoundingClientRect();
+  var compRect = composer.getBoundingClientRect();
+  popup.style.top = (btnRect.bottom - compRect.top + 6) + 'px';
+  popup.style.left = Math.max(0, (btnRect.left - compRect.left)) + 'px';
+  composer.appendChild(popup);
+  openPopup = popup;
+  // Close on outside click
+  setTimeout(function(){
+    document.addEventListener('click', function handler(e){
+      if(!popup.contains(e.target)){ closePopup(); document.removeEventListener('click', handler); }
+    });
+  }, 10);
+}
+
 function renderMoods(){
   var row = el('moodRow'); row.innerHTML='';
   MOODS.forEach(function(m){
     var b = document.createElement('button');
-    b.className='mood-chip'; b.textContent=m.key;
+    b.className='mood-chip'; b.textContent=m.key + ' &#9662;';
     b.style.borderColor=m.color;
     if(activeMood.key===m.key){ b.style.background=m.color; b.style.color='#1a1410'; }
-    b.addEventListener('click', function(){ activeMood=m; renderMoods(); });
+    b.addEventListener('click', function(e){
+      e.stopPropagation();
+      if(activeMood.key===m.key){
+        // Already selected &mdash; show examples popup
+        showMoodPopup(m, b);
+      } else {
+        // First click &mdash; just select the mood
+        activeMood=m; renderMoods();
+      }
+    });
     row.appendChild(b);
   });
 }
@@ -571,55 +650,41 @@ function renderInsight(posts){
   fetchInsight(posts);
 }
 
-function triggerInsight(){
-  var posts=loadPosts().sort(function(a,b){ return b.ts-a.ts; });
-  if(posts.length<7) return;
-  el('insightTrigger').style.display='none';
-  el('insightPanel').innerHTML=
-    '<div class="insight-panel">'+
-      '<div class="i-label">Your happiness insights</div>'+
-      '<div class="i-loading"><div class="i-dot"></div><div class="i-dot"></div><div class="i-dot"></div>&nbsp;Reading your moments&hellip;</div>'+
-    '</div>';
-  fetchInsight(posts);
-}
-
-var WORKER_URL='https://happy.cslcs-gen.workers.dev';
-var APP_TOKEN='happy-app-2026-cslcs';
-
 function fetchInsight(posts){
   var user=loadUser();
   var name=user&&user.name?user.name:'you';
   var recent=posts.slice(0,20);
   var summary=recent.map(function(p){ return '['+p.mood+'] '+p.text; }).join('\n');
-  var prompt='My name is '+name+'. Here are my recent happy moments:\n\n'+summary+'\n\nRespond ONLY with a JSON object (no markdown, no extra text) with exactly these two keys: "pattern" (one warm specific sentence about what makes me happy, referring to my actual moments), "suggestion" (one gentle concrete positive activity for me to try today, 1-2 sentences).';
+  var WORKER_URL = 'PASTE_YOUR_WORKER_URL_HERE';
   fetch(WORKER_URL,{
     method:'POST',
-    headers:{'Content-Type':'application/json','X-Happy-Token':APP_TOKEN},
-    body:JSON.stringify({prompt:prompt})
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:400,
+      system:'You are a warm, perceptive wellbeing coach. Read the user\'s happy moments and respond ONLY with a JSON object (no markdown, no preamble) with keys: "pattern" (one warm sentence about what makes them happy, be specific to their moments), "suggestion" (one gentle, concrete positive activity for today based on their patterns, 1-2 sentences).',
+      messages:[{role:'user',content:'My name is '+name+'. My recent happy moments:\n\n'+summary}]
+    })
   })
   .then(function(res){ return res.json(); })
   .then(function(data){
-    var text=data.text;
-    if(!text) throw new Error('No response from server');
+    var text=data.content&&data.content[0]&&data.content[0].text;
+    if(!text) throw new Error('No response');
     var clean=text.replace(/```json|```/g,'').trim();
     var parsed=JSON.parse(clean);
     insightCache=parsed;
-    el('insightTrigger').style.display='none';
     renderInsightContent(parsed);
   })
   .catch(function(err){
-    console.error('Insight error:',err);
+    var msg = err && err.message ? err.message : 'Network error';
     el('insightPanel').innerHTML=
       '<div class="insight-panel">'+
         '<div class="i-label">Your happiness insights</div>'+
-        '<div class="i-text" style="font-size:15px;opacity:.7;">Could not load right now. Try again shortly.</div>'+
-        '<div class="i-actions"><button class="i-btn" onclick="triggerInsight()">Try again</button></div>'+
+        '<div class="i-text" style="font-size:15px;opacity:.7;">Could not load insights right now. Keep adding moments &mdash; your patterns are building.</div>'+
+        '<div class="i-actions"><button class="i-btn" onclick="insightCache=null;render()">Try again</button></div>'+
       '</div>';
-    el('insightTrigger').style.display='none';
   });
 }
-
-function escHtml(s){ var d=document.createElement('div');d.textContent=s;return d.innerHTML; }
 
 function renderInsightContent(d){
   var panel=el('insightPanel');
@@ -630,7 +695,7 @@ function renderInsightContent(d){
   var sug=document.createElement('div'); sug.className='i-suggest'; sug.textContent=d.suggestion;
   var acts=document.createElement('div'); acts.className='i-actions';
   var refBtn=document.createElement('button'); refBtn.className='i-btn'; refBtn.textContent='Refresh';
-  refBtn.addEventListener('click',function(){ insightCache=null; el('insightPanel').innerHTML=''; triggerInsight(); });
+  refBtn.addEventListener('click',function(){ insightCache=null; render(); });
   acts.appendChild(refBtn);
   div.appendChild(label); div.appendChild(txt); div.appendChild(sug); div.appendChild(acts);
   panel.innerHTML=''; panel.appendChild(div);
@@ -682,10 +747,8 @@ function render(){
 
     var editTA=document.createElement('textarea');
     editTA.className='card-edit'; editTA.value=p.text; editTA.rows=2; editTA.maxLength=240;
-    editTA.style.display='none';
 
     var eRow=document.createElement('div'); eRow.className='card-edit-row';
-    eRow.style.display='none';
     var svBtn=document.createElement('button'); svBtn.className='btn-save'; svBtn.textContent='Save';
     var cnBtn=document.createElement('button'); cnBtn.className='btn-cancel'; cnBtn.textContent='Cancel';
     eRow.appendChild(svBtn); eRow.appendChild(cnBtn);
@@ -697,10 +760,9 @@ function render(){
     left.appendChild(moodSp); left.appendChild(tsSp);
 
     var actD=document.createElement('div'); actD.className='card-actions';
-    if(manageMode) actD.style.opacity='1';
+    if(manageMode) actD.style.display='none';
     var edBtn=document.createElement('button'); edBtn.className='act-btn'; edBtn.textContent='edit';
     var dlBtn=document.createElement('button'); dlBtn.className='act-btn del'; dlBtn.textContent='delete';
-    if(manageMode) dlBtn.style.display='none';
     actD.appendChild(edBtn); actD.appendChild(dlBtn);
 
     meta.appendChild(left); meta.appendChild(actD);
@@ -714,17 +776,13 @@ function render(){
     }
 
     // Edit
-    var editing=false;
     edBtn.addEventListener('click',function(){
-      if(editing){ exitEdit(); return; }
-      editing=true;
+      if(editTA.style.display==='block'){ exitEdit(); return; }
       ct.style.display='none'; editTA.style.display='block'; eRow.style.display='flex';
-      edBtn.textContent='cancel';
+      edBtn.textContent='cancel'; editTA.focus();
       editTA.style.height='auto'; editTA.style.height=editTA.scrollHeight+'px';
-      editTA.focus(); editTA.setSelectionRange(editTA.value.length,editTA.value.length);
     });
     function exitEdit(){
-      editing=false;
       ct.style.display=''; editTA.style.display='none'; eRow.style.display='none';
       edBtn.textContent='edit'; editTA.value=p.text;
     }
@@ -766,9 +824,6 @@ function renderFooter(total,showing){
   });
   f.appendChild(btn);
 }
-
-// ==================== INSIGHT BUTTON ====================
-el('insightBtn').addEventListener('click', function(){ triggerInsight(); });
 
 // ==================== SUBMIT ====================
 function updateCount(){
